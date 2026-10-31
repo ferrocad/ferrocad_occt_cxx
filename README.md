@@ -1,8 +1,31 @@
-# opencascade-rs
+# ferrocad_occt_cxx
+
+> **Fork.** This is FerroCAD's fork of
+> [`bschwind/opencascade-rs`](https://github.com/bschwind/opencascade-rs).
+> The package is published as `ferrocad_occt_cxx`; the Rust library keeps the
+> `opencascade_sys` name and the cxx include prefix stays `opencascade-sys`, so
+> downstream code is unchanged.
 
 Rust bindings to [OpenCascade](https://dev.opencascade.org). The code is currently a major work in progress.
 
 I currently work a full-time job and work on this in my spare time, so please adjust timing expectations accordingly :)
+
+## Fork status
+
+- **Base:** upstream `v0.3` (`32758df`), OCCT 7.8.x.
+- **Divergence:** only the MSVC build fix from
+  [upstream PR #234](https://github.com/bschwind/opencascade-rs/pull/234) —
+  owning `Handle_*` construction, exactly-typed cxx shims, and `advapi32` in
+  `build.rs`.
+- **Rebasing:** add upstream as a remote and cherry-pick the fork commits onto a
+  new upstream tag; fork tags are `v0.3.0-ferrocad.N`.
+- **Scope:** FerroCAD consumes the `opencascade-sys` layer. The high-level
+  `opencascade` crate is kept for upstream compatibility, not as this fork's
+  public API.
+- **License:** LGPL-2.1, unchanged. Upstream authors retain copyright; the
+  modifications are recorded in the git history and here.
+
+The rest of this README is upstream's.
 
 ## Major Goals
 * Define 3D CAD models suitable for 3D printing or machining, in ergonomic Rust code

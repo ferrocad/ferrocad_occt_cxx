@@ -1,11 +1,17 @@
 [package]
-name = "opencascade-sys"
-description = "Rust bindings to the OpenCascade CAD Kernel"
-authors = ["Brian Schwind <brianmschwind@gmail.com>"]
+name = "ferrocad_occt_cxx"
+description = "FerroCAD fork of the opencascade-sys bindings to the OpenCASCADE CAD kernel (OCCT 7.8.x, MSVC build fix)"
+authors = ["Brian Schwind <brianmschwind@gmail.com>", "FerroCAD contributors"]
 license = "LGPL-2.1"
 version = "0.3.0"
 edition = "2021"
-repository = "https://github.com/bschwind/opencascade-rs"
+repository = "https://github.com/ferrocad/ferrocad_occt_cxx"
+
+[lib]
+# Keep the historical library name: downstream code and this fork's bridge
+# sources refer to `opencascade_sys`, and the cxx include prefix is
+# `opencascade-sys` (pinned in build.rs). Only the package name changed.
+name = "opencascade_sys"
 
 [dependencies]
 cxx = "1"

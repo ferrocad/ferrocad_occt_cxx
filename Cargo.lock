@@ -936,6 +936,16 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "2acce4a10f12dc2fb14a218589d4f1f62ef011b2d0cc4b3cb1bba8e94da14649"
 
 [[package]]
+name = "ferrocad_occt_cxx"
+version = "0.3.0"
+dependencies = [
+ "cmake",
+ "cxx",
+ "cxx-build",
+ "occt-sys",
+]
+
+[[package]]
 name = "filetime"
 version = "0.2.25"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -2188,9 +2198,9 @@ name = "opencascade"
 version = "0.3.0"
 dependencies = [
  "cxx",
+ "ferrocad_occt_cxx",
  "glam 0.24.2",
  "opencascade-kicad-parser",
- "opencascade-sys",
  "thiserror 1.0.64",
 ]
 
@@ -2200,16 +2210,6 @@ version = "0.3.0"
 dependencies = [
  "sexp",
  "thiserror 1.0.64",
-]
-
-[[package]]
-name = "opencascade-sys"
-version = "0.3.0"
-dependencies = [
- "cmake",
- "cxx",
- "cxx-build",
- "occt-sys",
 ]
 
 [[package]]

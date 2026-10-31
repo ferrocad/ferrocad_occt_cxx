@@ -5,11 +5,11 @@ authors = ["Brian Schwind <brianmschwind@gmail.com>"]
 license = "LGPL-2.1"
 version = "0.3.0"
 edition = "2021"
-repository = "https://github.com/bschwind/opencascade-rs"
+repository = "https://github.com/ferrocad/ferrocad_occt_cxx"
 
 [dependencies]
 cxx = "1"
-opencascade-sys = { version = "0.3", path = "../opencascade-sys" }
+opencascade-sys = { version = "0.3", path = "../opencascade-sys", package = "ferrocad_occt_cxx" }
 glam = { version = "0.24", features = ["bytemuck"] }
 opencascade-kicad-parser = { version = "0.3", path = "../kicad-parser" }
 thiserror = "1"

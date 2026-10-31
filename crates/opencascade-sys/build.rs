@@ -32,6 +32,12 @@ const OCCT_LIBS: &[&str] = &[
 ];
 
 fn main() {
+    // The package is `ferrocad_occt_cxx`, but every bridge source and the
+    // Windows include path still spell `opencascade-sys/include/…`. Pin cxx's
+    // include prefix to the historical name so the rename is transparent to
+    // the generated C++ and to downstream crates.
+    cxx_build::CFG.include_prefix = "opencascade-sys";
+
     let target = std::env::var("TARGET").expect("No TARGET environment variable defined");
     let is_windows = target.to_lowercase().contains("windows");
     let is_windows_gnu = target.to_lowercase().contains("windows-gnu");
