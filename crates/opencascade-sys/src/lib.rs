@@ -15,6 +15,7 @@ pub mod b_rep_tools;
 pub mod bin_tools;
 pub mod bnd;
 pub mod bop_algo;
+pub mod chfi2d;
 pub mod g_prop;
 pub mod gc;
 pub mod gc_pnts;
