@@ -4,7 +4,10 @@
 #include <GeomAPI_PointsToBSplineSurface.hxx>
 #include <GeomAPI_ProjectPointOnCurve.hxx>
 #include <GeomAPI_ProjectPointOnSurf.hxx>
+#include <Geom2dAPI_InterCurveCurve.hxx>
+#include <Geom2dAPI_ProjectPointOnCurve.hxx>
 #include <Geom2d_Curve.hxx>
+#include <gp_Pnt2d.hxx>
 #include <GeomAbs_Shape.hxx>
 #include <Geom_BSplineCurve.hxx>
 #include <Geom_BSplineSurface.hxx>
@@ -96,4 +99,47 @@ inline void GeomAPI_PointsToBSplineSurface_Interpolate(GeomAPI_PointsToBSplineSu
 inline std::unique_ptr<Handle_Geom_Surface>
 GeomAPI_PointsToBSplineSurface_Surface(const GeomAPI_PointsToBSplineSurface &approx) {
   return std::unique_ptr<Handle_Geom_Surface>(new Handle_Geom_Surface(approx.Surface()));
+}
+
+inline std::unique_ptr<Geom2dAPI_InterCurveCurve>
+Geom2dAPI_InterCurveCurve_new(const Handle_Geom2d_Curve &curve, double tol) {
+  try {
+    return std::unique_ptr<Geom2dAPI_InterCurveCurve>(
+        new Geom2dAPI_InterCurveCurve(curve, tol));
+  } catch (const Standard_Failure &e) {
+    geom_api_rethrow(e);
+    return nullptr;
+  }
+}
+
+inline std::unique_ptr<gp_Pnt2d> Geom2dAPI_InterCurveCurve_Point(
+    const Geom2dAPI_InterCurveCurve &curve, int index) {
+  try {
+    return std::unique_ptr<gp_Pnt2d>(new gp_Pnt2d(curve.Point(index)));
+  } catch (const Standard_Failure &e) {
+    geom_api_rethrow(e);
+    return nullptr;
+  }
+}
+
+inline std::unique_ptr<Geom2dAPI_ProjectPointOnCurve>
+Geom2dAPI_ProjectPointOnCurve_new(const gp_Pnt2d &point, const Handle_Geom2d_Curve &curve,
+                                  double first, double last) {
+  try {
+    return std::unique_ptr<Geom2dAPI_ProjectPointOnCurve>(
+        new Geom2dAPI_ProjectPointOnCurve(point, curve, first, last));
+  } catch (const Standard_Failure &e) {
+    geom_api_rethrow(e);
+    return nullptr;
+  }
+}
+
+inline double Geom2dAPI_ProjectPointOnCurve_Parameter(
+    const Geom2dAPI_ProjectPointOnCurve &curve, int index) {
+  try {
+    return curve.Parameter(index);
+  } catch (const Standard_Failure &e) {
+    geom_api_rethrow(e);
+    return 0.0;
+  }
 }

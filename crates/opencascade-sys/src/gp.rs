@@ -46,10 +46,14 @@ mod inner {
         type gp_Lin;
         #[cxx_name = "construct_unique"]
         pub fn gp_Lin_new(point: &gp_Pnt, dir: &gp_Dir) -> UniquePtr<gp_Lin>;
+        pub fn gp_Lin_Location(lin: &gp_Lin) -> &gp_Pnt;
+        pub fn gp_Lin_Direction(lin: &gp_Lin) -> &gp_Dir;
 
         type gp_Circ;
         #[cxx_name = "construct_unique"]
         pub fn gp_Circ_new(axis: &gp_Ax2, radius: f64) -> UniquePtr<gp_Circ>;
+        pub fn gp_Circ_Position(circ: &gp_Circ) -> UniquePtr<gp_Ax2>;
+        pub fn Radius(self: &gp_Circ) -> f64;
 
         type gp_Elips;
         pub fn gp_Elips_new(
@@ -57,6 +61,9 @@ mod inner {
             major_radius: f64,
             minor_radius: f64,
         ) -> Result<UniquePtr<gp_Elips>>;
+        pub fn gp_Elips_Position(ellipse: &gp_Elips) -> UniquePtr<gp_Ax2>;
+        pub fn gp_Elips_MajorRadius(ellipse: &gp_Elips) -> f64;
+        pub fn gp_Elips_MinorRadius(ellipse: &gp_Elips) -> f64;
 
         type gp_Hypr;
         pub fn gp_Hypr_new(
@@ -64,9 +71,14 @@ mod inner {
             major_radius: f64,
             minor_radius: f64,
         ) -> Result<UniquePtr<gp_Hypr>>;
+        pub fn gp_Hypr_Position(hypr: &gp_Hypr) -> UniquePtr<gp_Ax2>;
+        pub fn gp_Hypr_MajorRadius(hypr: &gp_Hypr) -> f64;
+        pub fn gp_Hypr_MinorRadius(hypr: &gp_Hypr) -> f64;
 
         type gp_Parab;
         pub fn gp_Parab_new(axis: &gp_Ax2, focal: f64) -> Result<UniquePtr<gp_Parab>>;
+        pub fn gp_Parab_Position(parab: &gp_Parab) -> UniquePtr<gp_Ax2>;
+        pub fn gp_Parab_Focal(parab: &gp_Parab) -> f64;
 
         type gp_Pln;
         #[cxx_name = "construct_unique"]
@@ -119,6 +131,9 @@ mod inner {
             main_dir: &gp_Dir,
             x_dir: &gp_Dir,
         ) -> Result<UniquePtr<gp_Ax2>>;
+        pub fn Location(self: &gp_Ax2) -> &gp_Pnt;
+        pub fn Direction(self: &gp_Ax2) -> &gp_Dir;
+        pub fn XDirection(self: &gp_Ax2) -> &gp_Dir;
 
         type gp_Ax3;
         #[cxx_name = "construct_unique"]

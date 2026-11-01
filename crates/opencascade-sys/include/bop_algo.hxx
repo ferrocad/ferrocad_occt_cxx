@@ -16,3 +16,8 @@ inline void BOPAlgo_BuilderFace_Perform(BOPAlgo_BuilderFace &builder_face) {
     throw std::runtime_error(msg && *msg ? msg : "BOPAlgo_BuilderFace::Perform failed");
   }
 }
+
+inline void BOPAlgo_BuilderFace_SetAvoidInternalShapes(BOPAlgo_BuilderFace &builder_face,
+                                                       bool avoid) {
+  builder_face.SetAvoidInternalShapes(avoid);
+}

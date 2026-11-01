@@ -7,6 +7,7 @@
 #include <TopoDS_Face.hxx>
 #include <TopoDS_Shape.hxx>
 #include <TopoDS_Wire.hxx>
+#include <TopTools_ListOfShape.hxx>
 #include <bindings_common.hxx>
 
 #include <stdexcept>
@@ -72,4 +73,14 @@ inline void BRepFeat_SplitShape_Add_edge_edge(BRepFeat_SplitShape& split, const 
 inline void BRepFeat_SplitShape_Build(BRepFeat_SplitShape& split)
 {
     b_rep_feat_internal::guarded([&] { split.Build(); });
+}
+
+inline const TopTools_ListOfShape& BRepFeat_SplitShape_DirectLeft(BRepFeat_SplitShape& split)
+{
+    return split.DirectLeft();
+}
+
+inline const TopTools_ListOfShape& BRepFeat_SplitShape_Left(BRepFeat_SplitShape& split)
+{
+    return split.Left();
 }

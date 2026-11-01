@@ -43,6 +43,10 @@ mod inner {
         pub fn BOPAlgo_BuilderFace_Perform(
             builder_face: Pin<&mut BOPAlgo_BuilderFace>,
         ) -> Result<()>;
+        pub fn BOPAlgo_BuilderFace_SetAvoidInternalShapes(
+            builder_face: Pin<&mut BOPAlgo_BuilderFace>,
+            avoid: bool,
+        );
         pub fn HasErrors(self: &BOPAlgo_BuilderFace) -> bool;
         pub fn Orientation(self: &BOPAlgo_BuilderFace) -> TopAbs_Orientation;
     }

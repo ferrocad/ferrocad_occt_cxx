@@ -161,6 +161,36 @@ inline std::unique_ptr<gp_Dir> gp_Dir_Reversed(const gp_Dir &dir) {
   return std::unique_ptr<gp_Dir>(new gp_Dir(dir.Reversed()));
 }
 
+inline std::unique_ptr<gp_Ax2> gp_Circ_Position(const gp_Circ &circ) {
+  return std::unique_ptr<gp_Ax2>(new gp_Ax2(circ.Position()));
+}
+
+inline std::unique_ptr<gp_Ax2> gp_Elips_Position(const gp_Elips &elips) {
+  return std::unique_ptr<gp_Ax2>(new gp_Ax2(elips.Position()));
+}
+
+inline double gp_Elips_MajorRadius(const gp_Elips &elips) { return elips.MajorRadius(); }
+
+inline double gp_Elips_MinorRadius(const gp_Elips &elips) { return elips.MinorRadius(); }
+
+inline std::unique_ptr<gp_Ax2> gp_Hypr_Position(const gp_Hypr &hypr) {
+  return std::unique_ptr<gp_Ax2>(new gp_Ax2(hypr.Position()));
+}
+
+inline double gp_Hypr_MajorRadius(const gp_Hypr &hypr) { return hypr.MajorRadius(); }
+
+inline double gp_Hypr_MinorRadius(const gp_Hypr &hypr) { return hypr.MinorRadius(); }
+
+inline std::unique_ptr<gp_Ax2> gp_Parab_Position(const gp_Parab &parab) {
+  return std::unique_ptr<gp_Ax2>(new gp_Ax2(parab.Position()));
+}
+
+inline double gp_Parab_Focal(const gp_Parab &parab) { return parab.Focal(); }
+
+inline const gp_Pnt &gp_Lin_Location(const gp_Lin &lin) { return lin.Location(); }
+
+inline const gp_Dir &gp_Lin_Direction(const gp_Lin &lin) { return lin.Direction(); }
+
 inline std::unique_ptr<gp_Ax3> gp_Pln_Position(const gp_Pln &plane) {
   return std::unique_ptr<gp_Ax3>(new gp_Ax3(plane.Position()));
 }

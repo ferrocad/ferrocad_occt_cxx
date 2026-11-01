@@ -69,6 +69,13 @@ inline void BRep_Tool_CurveOnSurface(const TopoDS_Edge &edge,
   BRep_Tool::CurveOnSurface(edge, curve, surface, location, first, last);
 }
 
+inline std::unique_ptr<Handle_Geom2d_Curve>
+BRep_Tool_CurveOnSurface_face(const TopoDS_Edge &edge, const TopoDS_Face &face,
+                              Standard_Real &first, Standard_Real &last) {
+  return std::unique_ptr<Handle_Geom2d_Curve>(
+      new Handle_Geom2d_Curve(BRep_Tool::CurveOnSurface(edge, face, first, last)));
+}
+
 inline double BRep_Tool_Tolerance(const TopoDS_Shape &shape) {
   try {
     switch (shape.ShapeType()) {

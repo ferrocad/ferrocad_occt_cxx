@@ -3,7 +3,6 @@ members = [
     "crates/kicad-parser", "crates/model-api",
     "crates/opencascade",
     "crates/opencascade-sys",
-    "crates/ferrocad_part_cxx",
     "crates/viewer", "crates/wasm-example",
     "examples",
 ]

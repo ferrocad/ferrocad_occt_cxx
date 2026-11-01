@@ -72,6 +72,12 @@ mod inner {
         pub fn BRepFeat_SplitShape_Build(
             split: Pin<&mut BRepFeat_SplitShape>,
         ) -> Result<()>;
+        pub fn BRepFeat_SplitShape_DirectLeft(
+            split: Pin<&mut BRepFeat_SplitShape>,
+        ) -> &TopTools_ListOfShape;
+        pub fn BRepFeat_SplitShape_Left(
+            split: Pin<&mut BRepFeat_SplitShape>,
+        ) -> &TopTools_ListOfShape;
         pub fn IsDone(self: &BRepFeat_SplitShape) -> bool;
         pub fn Shape(self: Pin<&mut BRepFeat_SplitShape>) -> &TopoDS_Shape;
         pub fn Modified(

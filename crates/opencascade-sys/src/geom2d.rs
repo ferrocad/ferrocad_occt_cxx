@@ -16,6 +16,11 @@ mod inner {
         pub fn IsNull(self: &Handle_Geom2d_Curve) -> bool;
         pub fn Handle_Geom2d_Curve_new() -> UniquePtr<Handle_Geom2d_Curve>;
 
+        #[cxx_name = "construct_unique"]
+        pub fn new_HandleGeom2d_Curve_from_HandleGeom2d_BSplineCurve(
+            curve: &Handle_Geom2d_BSplineCurve,
+        ) -> UniquePtr<Handle_Geom2d_Curve>;
+
         type Handle_Geom2d_Ellipse;
         pub fn IsNull(self: &Handle_Geom2d_Ellipse) -> bool;
 
@@ -54,11 +59,29 @@ mod inner {
             multiplicities: &TColStd_Array1OfInteger,
             degree: i32,
         ) -> Result<UniquePtr<Handle_Geom2d_BSplineCurve>>;
+        #[allow(clippy::too_many_arguments)]
+        pub fn Geom2d_BSplineCurve_new_full(
+            poles: &TColgp_Array1OfPnt2d,
+            weights: &TColStd_Array1OfReal,
+            knots: &TColStd_Array1OfReal,
+            multiplicities: &TColStd_Array1OfInteger,
+            degree: i32,
+            periodic: bool,
+        ) -> Result<UniquePtr<Handle_Geom2d_BSplineCurve>>;
         pub fn Geom2d_BSplineCurve_Poles(
             curve: &Handle_Geom2d_BSplineCurve,
         ) -> &TColgp_Array1OfPnt2d;
         pub fn Geom2d_BSplineCurve_Degree(curve: &Handle_Geom2d_BSplineCurve) -> i32;
         pub fn Geom2d_BSplineCurve_IsPeriodic(curve: &Handle_Geom2d_BSplineCurve) -> bool;
+        pub fn Geom2d_BSplineCurve_Knots(
+            curve: &Handle_Geom2d_BSplineCurve,
+        ) -> &TColStd_Array1OfReal;
+        pub fn Geom2d_BSplineCurve_Multiplicities(
+            curve: &Handle_Geom2d_BSplineCurve,
+        ) -> &TColStd_Array1OfInteger;
+        pub fn Geom2dCurve_DownCast_bspline(
+            curve: &Handle_Geom2d_Curve,
+        ) -> UniquePtr<Handle_Geom2d_BSplineCurve>;
     }
 
     impl UniquePtr<Handle_Geom2d_Ellipse> {}

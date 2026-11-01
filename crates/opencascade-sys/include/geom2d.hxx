@@ -54,6 +54,21 @@ inline std::unique_ptr<Handle_Geom2d_BSplineCurve> Geom2d_BSplineCurve_new(
   }
 }
 
+inline std::unique_ptr<Handle_Geom2d_BSplineCurve>
+Geom2d_BSplineCurve_new_full(const TColgp_Array1OfPnt2d &poles,
+                             const TColStd_Array1OfReal &weights,
+                             const TColStd_Array1OfReal &knots,
+                             const TColStd_Array1OfInteger &multiplicities,
+                             int degree, bool periodic) {
+  try {
+    return std::unique_ptr<Handle_Geom2d_BSplineCurve>(new Handle_Geom2d_BSplineCurve(
+        new Geom2d_BSplineCurve(poles, weights, knots, multiplicities, degree, periodic)));
+  } catch (const Standard_Failure &e) {
+    geom2d_rethrow(e);
+    return nullptr;
+  }
+}
+
 inline const TColgp_Array1OfPnt2d &Geom2d_BSplineCurve_Poles(const Handle_Geom2d_BSplineCurve &curve) {
   return curve->Poles();
 }
@@ -64,4 +79,18 @@ inline int Geom2d_BSplineCurve_Degree(const Handle_Geom2d_BSplineCurve &curve) {
 
 inline bool Geom2d_BSplineCurve_IsPeriodic(const Handle_Geom2d_BSplineCurve &curve) {
   return curve->IsPeriodic();
+}
+
+inline const TColStd_Array1OfReal &Geom2d_BSplineCurve_Knots(const Handle_Geom2d_BSplineCurve &curve) {
+  return curve->Knots();
+}
+
+inline const TColStd_Array1OfInteger &Geom2d_BSplineCurve_Multiplicities(const Handle_Geom2d_BSplineCurve &curve) {
+  return curve->Multiplicities();
+}
+
+inline std::unique_ptr<Handle_Geom2d_BSplineCurve>
+Geom2dCurve_DownCast_bspline(const Handle_Geom2d_Curve &curve) {
+  return std::unique_ptr<Handle_Geom2d_BSplineCurve>(
+      new Handle_Geom2d_BSplineCurve(Handle(Geom2d_BSplineCurve)::DownCast(curve)));
 }

@@ -85,6 +85,13 @@ mod inner {
             first: &mut f64,
             last: &mut f64,
         );
+        /// `BRep_Tool::CurveOnSurface(edge, face, first, last)`.
+        pub fn BRep_Tool_CurveOnSurface_face(
+            edge: &TopoDS_Edge,
+            face: &TopoDS_Face,
+            first: &mut f64,
+            last: &mut f64,
+        ) -> UniquePtr<Handle_Geom2d_Curve>;
         /// `BRep_Tool::Tolerance` for any of the tolerance-bearing shape types
         /// (vertex, edge, face); raises for other types.
         pub fn BRep_Tool_Tolerance(shape: &TopoDS_Shape) -> Result<f64>;

@@ -7,11 +7,29 @@ mod inner {
 
         type TopoDS_Shape = crate::topo_ds::TopoDS_Shape;
         type TopTools_ListOfShape = crate::top_tools::TopTools_ListOfShape;
+        type gp_Pln = crate::gp::gp_Pln;
         type Message_ProgressRange = crate::message::Message_ProgressRange;
         type BOPAlgo_GlueEnum = crate::bop_algo::BOPAlgo_GlueEnum;
         type BOPAlgo_Operation = crate::bop_algo::BOPAlgo_Operation;
 
         pub type BRepAlgoAPI_BuilderAlgo;
+        #[cxx_name = "construct_unique"]
+        pub fn BRepAlgoAPI_BuilderAlgo_new() -> UniquePtr<BRepAlgoAPI_BuilderAlgo>;
+        pub fn SetArguments(self: Pin<&mut BRepAlgoAPI_BuilderAlgo>, arguments: &TopTools_ListOfShape);
+        pub fn SetNonDestructive(self: Pin<&mut BRepAlgoAPI_BuilderAlgo>, enabled: bool);
+        pub fn BRepAlgoAPI_BuilderAlgo_SetFuzzyValue(
+            op: Pin<&mut BRepAlgoAPI_BuilderAlgo>,
+            value: f64,
+        );
+        pub fn BRepAlgoAPI_BuilderAlgo_Build(
+            op: Pin<&mut BRepAlgoAPI_BuilderAlgo>,
+        ) -> Result<()>;
+        pub fn IsDone(self: &BRepAlgoAPI_BuilderAlgo) -> bool;
+        pub fn Shape(self: Pin<&mut BRepAlgoAPI_BuilderAlgo>) -> &TopoDS_Shape;
+        pub fn Modified<'a>(
+            self: Pin<&'a mut BRepAlgoAPI_BuilderAlgo>,
+            shape: &'a TopoDS_Shape,
+        ) -> &'a TopTools_ListOfShape;
         pub fn SectionEdges(self: Pin<&mut BRepAlgoAPI_BuilderAlgo>) -> &TopTools_ListOfShape;
 
         pub type BRepAlgoAPI_Fuse;
@@ -92,6 +110,11 @@ mod inner {
         pub fn BRepAlgoAPI_Section_new(
             shape_1: &TopoDS_Shape,
             shape_2: &TopoDS_Shape,
+        ) -> UniquePtr<BRepAlgoAPI_Section>;
+        #[cxx_name = "construct_unique"]
+        pub fn BRepAlgoAPI_Section_new_plane(
+            shape: &TopoDS_Shape,
+            plane: &gp_Pln,
         ) -> UniquePtr<BRepAlgoAPI_Section>;
         pub fn Shape(self: Pin<&mut BRepAlgoAPI_Section>) -> &TopoDS_Shape;
         pub fn Build(self: Pin<&mut BRepAlgoAPI_Section>, progress: &Message_ProgressRange);

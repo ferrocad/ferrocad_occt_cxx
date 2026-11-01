@@ -10,6 +10,7 @@ mod inner {
         type gp_Pnt = crate::gp::gp_Pnt;
         type gp_Pln = crate::gp::gp_Pln;
         type gp_Dir = crate::gp::gp_Dir;
+        type gp_Trsf = crate::gp::gp_Trsf;
         type gp_Lin = crate::gp::gp_Lin;
         type gp_Circ = crate::gp::gp_Circ;
         type gp_Elips = crate::gp::gp_Elips;
@@ -30,6 +31,10 @@ mod inner {
         pub fn HandleGeomCurve_Value(curve: &Handle_Geom_Curve, u: f64) -> UniquePtr<gp_Pnt>;
         pub fn HandleGeomCurve_FirstParameter(curve: &Handle_Geom_Curve) -> f64;
         pub fn HandleGeomCurve_LastParameter(curve: &Handle_Geom_Curve) -> f64;
+        pub fn HandleGeomCurve_Transformed(
+            curve: &Handle_Geom_Curve,
+            transform: &gp_Trsf,
+        ) -> Result<UniquePtr<Handle_Geom_Curve>>;
 
         type Handle_Geom_Line;
         pub fn IsNull(self: &Handle_Geom_Line) -> bool;
@@ -154,6 +159,31 @@ mod inner {
             trimmed_curve_handle: &Handle_Geom_TrimmedCurve,
         ) -> UniquePtr<Handle_Geom_Curve>;
 
+        #[cxx_name = "construct_unique"]
+        pub fn new_HandleGeomCurve_from_HandleGeom_Circle(
+            circle_handle: &Handle_Geom_Circle,
+        ) -> UniquePtr<Handle_Geom_Curve>;
+
+        #[cxx_name = "construct_unique"]
+        pub fn new_HandleGeomCurve_from_HandleGeom_Ellipse(
+            ellipse_handle: &Handle_Geom_Ellipse,
+        ) -> UniquePtr<Handle_Geom_Curve>;
+
+        #[cxx_name = "construct_unique"]
+        pub fn new_HandleGeomCurve_from_HandleGeom_Hyperbola(
+            hyperbola_handle: &Handle_Geom_Hyperbola,
+        ) -> UniquePtr<Handle_Geom_Curve>;
+
+        #[cxx_name = "construct_unique"]
+        pub fn new_HandleGeomCurve_from_HandleGeom_Parabola(
+            parabola_handle: &Handle_Geom_Parabola,
+        ) -> UniquePtr<Handle_Geom_Curve>;
+
+        #[cxx_name = "construct_unique"]
+        pub fn new_HandleGeomCurve_from_HandleGeom_OffsetCurve(
+            offset_curve_handle: &Handle_Geom_OffsetCurve,
+        ) -> UniquePtr<Handle_Geom_Curve>;
+
         // Curve construction
         pub fn Geom_Line_new(point: &gp_Pnt, direction: &gp_Dir) -> UniquePtr<Handle_Geom_Line>;
         pub fn Geom_Circle_new(axis: &gp_Ax2, radius: f64) -> UniquePtr<Handle_Geom_Circle>;
@@ -190,6 +220,16 @@ mod inner {
             knots: &TColStd_Array1OfReal,
             multiplicities: &TColStd_Array1OfInteger,
             degree: i32,
+        ) -> Result<UniquePtr<Handle_Geom_BSplineCurve>>;
+        #[allow(clippy::too_many_arguments)]
+        pub fn Geom_BSplineCurve_new_full(
+            poles: &TColgp_Array1OfPnt,
+            weights: &TColStd_Array1OfReal,
+            knots: &TColStd_Array1OfReal,
+            multiplicities: &TColStd_Array1OfInteger,
+            degree: i32,
+            periodic: bool,
+            check_rational: bool,
         ) -> Result<UniquePtr<Handle_Geom_BSplineCurve>>;
 
         // Curve accessors
@@ -260,11 +300,21 @@ mod inner {
             curve: Pin<&mut Handle_Geom_BSplineCurve>,
             u: f64,
             m: i32,
+            tolerance: f64,
         );
         pub fn HandleGeomBSplineCurve_SetKnots(
             curve: Pin<&mut Handle_Geom_BSplineCurve>,
             knots: &TColStd_Array1OfReal,
         ) -> Result<()>;
+        /// The expanded knot sequence (`Geom_BSplineCurve::KnotSequence`).
+        pub fn HandleGeomBSplineCurve_KnotSequence(
+            curve: &Handle_Geom_BSplineCurve,
+        ) -> UniquePtr<TColStd_Array1OfReal>;
+        /// A copy of the curve, for re-segmentation without mutating the shared
+        /// curve an edge stores.
+        pub fn HandleGeomBSplineCurve_Copy(
+            curve: &Handle_Geom_BSplineCurve,
+        ) -> UniquePtr<Handle_Geom_BSplineCurve>;
 
         // Bezier curve accessors
         pub fn HandleGeomBezierCurve_NbPoles(curve: &Handle_Geom_BezierCurve) -> i32;

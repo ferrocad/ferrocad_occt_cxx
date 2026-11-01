@@ -18,6 +18,7 @@ mod inner {
         include!("opencascade-sys/include/geom_api.hxx");
 
         type gp_Pnt = crate::gp::gp_Pnt;
+        type gp_Pnt2d = crate::gp::gp_Pnt2d;
         type gp_Vec = crate::gp::gp_Vec;
         type gp_Pln = crate::gp::gp_Pln;
         type Handle_TColgp_HArray1OfPnt = crate::t_col_gp::Handle_TColgp_HArray1OfPnt;
@@ -86,6 +87,30 @@ mod inner {
             curve: &Handle_Geom_Curve,
             plane: &gp_Pln,
         ) -> Result<UniquePtr<Handle_Geom2d_Curve>>;
+
+        type Geom2dAPI_InterCurveCurve;
+        pub fn Geom2dAPI_InterCurveCurve_new(
+            curve: &Handle_Geom2d_Curve,
+            tol: f64,
+        ) -> Result<UniquePtr<Geom2dAPI_InterCurveCurve>>;
+        pub fn NbPoints(self: &Geom2dAPI_InterCurveCurve) -> i32;
+        pub fn Geom2dAPI_InterCurveCurve_Point(
+            curve: &Geom2dAPI_InterCurveCurve,
+            index: i32,
+        ) -> UniquePtr<gp_Pnt2d>;
+
+        type Geom2dAPI_ProjectPointOnCurve;
+        pub fn Geom2dAPI_ProjectPointOnCurve_new(
+            point: &gp_Pnt2d,
+            curve: &Handle_Geom2d_Curve,
+            first: f64,
+            last: f64,
+        ) -> Result<UniquePtr<Geom2dAPI_ProjectPointOnCurve>>;
+        pub fn NbPoints(self: &Geom2dAPI_ProjectPointOnCurve) -> i32;
+        pub fn Geom2dAPI_ProjectPointOnCurve_Parameter(
+            curve: &Geom2dAPI_ProjectPointOnCurve,
+            index: i32,
+        ) -> Result<f64>;
 
         type GeomAPI_PointsToBSplineSurface;
         #[cxx_name = "construct_unique"]

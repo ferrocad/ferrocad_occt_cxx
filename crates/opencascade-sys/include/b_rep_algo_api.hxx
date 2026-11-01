@@ -66,3 +66,18 @@ inline void BRepAlgoAPI_Cut_SetRunParallel(BRepAlgoAPI_Cut &op, bool enabled) {
 inline void BRepAlgoAPI_Cut_SetFuzzyValue(BRepAlgoAPI_Cut &op, double value) {
   op.SetFuzzyValue(value);
 }
+
+// `BRepAlgoAPI_BuilderAlgo` (General Fuse): `SetNonDestructive`/`SetArguments` are
+// inherited from `BOPAlgo_Builder`; `SetFuzzyValue` from the protected
+// `BOPAlgo_Options` base, so it needs a helper like `BRepAlgoAPI_Cut` does.
+inline void BRepAlgoAPI_BuilderAlgo_SetFuzzyValue(BRepAlgoAPI_BuilderAlgo &op, double value) {
+  op.SetFuzzyValue(value);
+}
+
+inline void BRepAlgoAPI_BuilderAlgo_Build(BRepAlgoAPI_BuilderAlgo &op) {
+  try {
+    op.Build();
+  } catch (const Standard_Failure &e) {
+    b_rep_algo_api_rethrow(e);
+  }
+}

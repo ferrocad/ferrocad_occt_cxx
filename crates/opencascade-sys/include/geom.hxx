@@ -143,6 +143,22 @@ inline std::unique_ptr<Handle_Geom_BSplineCurve> Geom_BSplineCurve_new(
   }
 }
 
+inline std::unique_ptr<Handle_Geom_BSplineCurve>
+Geom_BSplineCurve_new_full(const TColgp_Array1OfPnt &poles,
+                           const TColStd_Array1OfReal &weights,
+                           const TColStd_Array1OfReal &knots,
+                           const TColStd_Array1OfInteger &multiplicities,
+                           int degree, bool periodic, bool check_rational) {
+  try {
+    return std::unique_ptr<Handle_Geom_BSplineCurve>(new Handle_Geom_BSplineCurve(
+        new Geom_BSplineCurve(poles, weights, knots, multiplicities, degree, periodic,
+                              check_rational)));
+  } catch (const Standard_Failure &e) {
+    geom_rethrow(e);
+    return nullptr;
+  }
+}
+
 // ---------------------------------------------------------------------------
 // Curve accessors
 // ---------------------------------------------------------------------------
@@ -189,6 +205,17 @@ inline double HandleGeomCurve_FirstParameter(const Handle_Geom_Curve &curve) {
 
 inline double HandleGeomCurve_LastParameter(const Handle_Geom_Curve &curve) {
   return curve->LastParameter();
+}
+
+inline std::unique_ptr<Handle_Geom_Curve>
+HandleGeomCurve_Transformed(const Handle_Geom_Curve &curve, const gp_Trsf &transform) {
+  try {
+    return std::unique_ptr<Handle_Geom_Curve>(
+        new Handle_Geom_Curve(Handle(Geom_Curve)::DownCast(curve->Transformed(transform))));
+  } catch (const Standard_Failure &e) {
+    geom_rethrow(e);
+    return nullptr;
+  }
 }
 
 // ---------------------------------------------------------------------------
@@ -296,8 +323,9 @@ inline bool HandleGeomBSplineCurve_RemoveKnot(Handle_Geom_BSplineCurve &curve, i
   }
 }
 
-inline void HandleGeomBSplineCurve_InsertKnot(Handle_Geom_BSplineCurve &curve, double u, int m) {
-  curve->InsertKnot(u, m);
+inline void HandleGeomBSplineCurve_InsertKnot(Handle_Geom_BSplineCurve &curve, double u, int m,
+                                             double tolerance) {
+  curve->InsertKnot(u, m, tolerance);
 }
 
 inline void HandleGeomBSplineCurve_SetKnots(Handle_Geom_BSplineCurve &curve,
@@ -307,6 +335,33 @@ inline void HandleGeomBSplineCurve_SetKnots(Handle_Geom_BSplineCurve &curve,
   } catch (const Standard_Failure &e) {
     geom_rethrow(e);
   }
+}
+
+inline std::unique_ptr<TColStd_Array1OfReal>
+HandleGeomBSplineCurve_KnotSequence(const Handle_Geom_BSplineCurve &curve) {
+  try {
+    Standard_Integer sequence_length = 0;
+    if (curve->IsPeriodic()) {
+      sequence_length = curve->NbPoles() + 2 * curve->Degree() - curve->Multiplicity(1) + 2;
+    } else {
+      for (Standard_Integer i = 1; i <= curve->NbKnots(); ++i) {
+        sequence_length += curve->Multiplicity(i);
+      }
+    }
+    std::unique_ptr<TColStd_Array1OfReal> sequence(
+        new TColStd_Array1OfReal(1, sequence_length));
+    curve->KnotSequence(*sequence);
+    return sequence;
+  } catch (const Standard_Failure &e) {
+    geom_rethrow(e);
+    return nullptr;
+  }
+}
+
+inline std::unique_ptr<Handle_Geom_BSplineCurve>
+HandleGeomBSplineCurve_Copy(const Handle_Geom_BSplineCurve &curve) {
+  return std::unique_ptr<Handle_Geom_BSplineCurve>(
+      new Handle_Geom_BSplineCurve(Handle(Geom_BSplineCurve)::DownCast(curve->Copy())));
 }
 
 // ---------------------------------------------------------------------------
