@@ -110,6 +110,27 @@ mod inner {
         // `Result` shim delivers it instead of aborting.
         pub fn BRepFilletAPI_MakeFillet_build(op: Pin<&mut BRepFilletAPI_MakeFillet>) -> Result<()>;
         pub fn BRepFilletAPI_MakeChamfer_build(op: Pin<&mut BRepFilletAPI_MakeChamfer>) -> Result<()>;
+
+        // The raw `Add` calls can also raise `Standard_Failure`, so each one has
+        // a checked twin that translates it into `std::runtime_error` and
+        // delivers it as `Result::Err` (see the header).
+        pub fn BRepFilletAPI_MakeFillet_add_edge_checked(
+            op: Pin<&mut BRepFilletAPI_MakeFillet>,
+            radius: f64,
+            edge: &TopoDS_Edge,
+        ) -> Result<()>;
+        pub fn BRepFilletAPI_MakeChamfer_add_edge_checked(
+            op: Pin<&mut BRepFilletAPI_MakeChamfer>,
+            distance: f64,
+            edge: &TopoDS_Edge,
+        ) -> Result<()>;
+        pub fn BRepFilletAPI_MakeChamfer_add_asym_checked(
+            op: Pin<&mut BRepFilletAPI_MakeChamfer>,
+            d1: f64,
+            d2: f64,
+            edge: &TopoDS_Edge,
+            face: &TopoDS_Face,
+        ) -> Result<()>;
     }
 }
 

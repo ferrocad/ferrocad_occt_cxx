@@ -64,6 +64,29 @@ inline void build(Op& op)
         throw std::runtime_error("unknown OCCT exception");
     }
 }
+
+// Run one `Add`-family call and translate its failure type for cxx's `Result`
+// shim, the same way `build` does for `Build`.
+template <typename F>
+inline void guarded(F&& call)
+{
+    try
+    {
+        call();
+    }
+    catch (const Standard_Failure& f)
+    {
+        rethrow(f);
+    }
+    catch (const std::exception&)
+    {
+        throw;
+    }
+    catch (...)
+    {
+        throw std::runtime_error("unknown OCCT exception");
+    }
+}
 }  // namespace b_rep_fillet_internal
 
 inline void BRepFilletAPI_MakeFillet_build(BRepFilletAPI_MakeFillet& op)
@@ -74,4 +97,31 @@ inline void BRepFilletAPI_MakeFillet_build(BRepFilletAPI_MakeFillet& op)
 inline void BRepFilletAPI_MakeChamfer_build(BRepFilletAPI_MakeChamfer& op)
 {
     b_rep_fillet_internal::build(op);
+}
+
+// --- fallible add ----------------------------------------------------------
+// `Add` can raise `Standard_Failure` for the same reason `Build` can (a
+// foreign edge, a bad radius on some versions), so wrap it for cxx's `Result`
+// shim instead of crossing the `noexcept` boundary and aborting.
+inline void BRepFilletAPI_MakeFillet_add_edge_checked(BRepFilletAPI_MakeFillet& op,
+                                                      Standard_Real radius,
+                                                      const TopoDS_Edge& edge)
+{
+    b_rep_fillet_internal::guarded([&] { op.Add(radius, edge); });
+}
+
+inline void BRepFilletAPI_MakeChamfer_add_edge_checked(BRepFilletAPI_MakeChamfer& op,
+                                                       Standard_Real distance,
+                                                       const TopoDS_Edge& edge)
+{
+    b_rep_fillet_internal::guarded([&] { op.Add(distance, edge); });
+}
+
+inline void BRepFilletAPI_MakeChamfer_add_asym_checked(BRepFilletAPI_MakeChamfer& op,
+                                                       Standard_Real d1,
+                                                       Standard_Real d2,
+                                                       const TopoDS_Edge& edge,
+                                                       const TopoDS_Face& face)
+{
+    b_rep_fillet_internal::guarded([&] { op.Add(d1, d2, edge, face); });
 }
