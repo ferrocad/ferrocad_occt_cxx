@@ -2,11 +2,10 @@
 
 > **Fork.** This is FerroCAD's fork of
 > [`bschwind/opencascade-rs`](https://github.com/bschwind/opencascade-rs).
-> The workspace carries two crates: `crates/opencascade-sys` (package
-> `ferrocad_occt_cxx`) is the patched upstream binding — the Rust library keeps
-> the `opencascade_sys` name and the cxx include prefix stays `opencascade-sys` —
-> and `crates/ferrocad_part_cxx` holds FerroCAD's typed Part-layer bindings, so
-> `ferrocad_occt` can stay pure Rust.
+> It keeps `crates/opencascade-sys` (package `ferrocad_occt_cxx`, library
+> `opencascade_sys` — the crate FerroCAD builds) and the WASM model boundary
+> (`crates/model-api` + `crates/wasm-example`). Upstream's high-level API, viewer,
+> KiCad parser and demo models are removed; see "Fork status".
 
 Rust bindings to [OpenCascade](https://dev.opencascade.org). The code is currently a major work in progress.
 
@@ -14,26 +13,29 @@ I currently work a full-time job and work on this in my spare time, so please ad
 
 ## Fork status
 
-- **Base:** upstream `v0.3` (`32758df`), OCCT 7.8.x.
-- **Divergence:** only the MSVC build fix from
-  [upstream PR #234](https://github.com/bschwind/opencascade-rs/pull/234) —
-  owning `Handle_*` construction, exactly-typed cxx shims, and `advapi32` in
-  `build.rs`.
+- **Base:** upstream `v0.3` (`32758df`), with the OCCT 8 compatibility work.
+- **Keeps:**
+  - `crates/opencascade-sys` (package `ferrocad_occt_cxx`, library
+    `opencascade_sys`) — the only crate FerroCAD builds.
+  - `crates/model-api` (the WIT contract) and `crates/wasm-example` (a model
+    compiled to `wasm32-unknown-unknown`) — the WASM path.
+  - `crates/occt-sys` — the optional `builtin` static build of OCCT.
+- **Removed:** upstream's high-level `opencascade` API, the `viewer` demo, the
+  KiCad parser and the example models. FerroCAD does not use them, and the WASM
+  path is the model/WIT boundary rather than the demo host. They remain in the
+  git history if they are ever needed again.
+- **OCCT versions:** 7.8.1 (the CI default) and 8.0.1.
 - **Rebasing:** add upstream as a remote and cherry-pick the fork commits onto a
   new upstream tag; fork tags are `v0.3.0-ferrocad.N`.
-- **Scope:** FerroCAD consumes the `opencascade-sys` layer plus
-  `ferrocad_part_cxx`. The high-level `opencascade` crate is kept for upstream
-  compatibility, not as this fork's public API.
-- **Layering:** `crates/opencascade-sys` stays a clean patch of upstream so it
-  can be rebased. `crates/ferrocad_part_cxx` is the C++ boundary: generic OCCT
-  bindings only (`LGPL-2.1`, donation-ready), with FerroCAD/FreeCAD semantics,
-  validation and error mapping in Rust.
 - **License:** LGPL-2.1, unchanged. Upstream authors retain copyright; the
   modifications are recorded in the git history and here.
 
 The rest of this README is upstream's.
 
 ## Major Goals
+
+*(Upstream's goals; this fork ships the binding layer and the WASM boundary.)*
+
 * Define 3D CAD models suitable for 3D printing or machining, in ergonomic Rust code
 * Code-first approach, but allow use of a GUI where it makes sense (2D sketches)
 * Support fillets, chamfers, lofts, surface filling, pipes, extrusions, revolutions, etc.
@@ -101,8 +103,8 @@ the `occt-sys` submodule — minutes to build, and statically linked:
 cargo build --features builtin
 ```
 
-Downstream crates opt in the same way: `opencascade = { version = "0.3", features =
-["builtin"] }`.
+Downstream crates opt in the same way: enable the `builtin` feature on
+`ferrocad_occt_cxx`.
 
 NOTE: If you installed `OCCT` manually you may need specify the path to it via the `DEP_OCCT_ROOT` environment variable. The specified root directory usually contains `include` and `lib` directories.
 
@@ -116,35 +118,21 @@ The program will output `bottle.stl` in the current working directory.
 
 There are low level examples which are more or less directly calling OpenCascade functions, such as the classic OpenCascade [bottle](./crates/opencascade-sys/examples/bottle.rs) example, or a [simpler](./crates/opencascade-sys/examples/simple.rs) one.
 
-### Higher Level
+## WASM models
 
-The [higher level examples](./crates/opencascade/examples) use more ergonomic Rust APIs, though the exact API is still in flux and subject to change.
+The WASM path is the model/WIT boundary, not a bundled viewer:
 
-## Viewer Application
+- [`crates/model-api`](./crates/model-api) defines the WIT contract and the
+  `Model` trait, so a model can be compiled to `wasm32-unknown-unknown`.
+- [`crates/wasm-example`](./crates/wasm-example) is such a model.
 
-There is currently an experimental viewer application based on WGPU, which will probably become the "main" way people use this crate. It currently visualizes one of the examples, but will expand to be capable of loading Rust model code compiled to WASM, allowing faster compile times and more interactive inspection of the sketches and models.
-
-To e.g. visualize the keycap example, you can run the current viewer app with
-
-```
-$ cargo run --release --bin viewer -- --example keycap
+```sh
+cargo build -p wasm-example --release --target wasm32-unknown-unknown
 ```
 
-To view a STEP file:
-
-```
-$ cargo run --release --bin viewer -- --step-file SOME_FILE.step
-```
-
-## Example Model Writer
-
-You can write an example model to a file using the `write_model` binary in `examples`.
-
-For more information, run the following command:
-
-```
-cargo run --bin write_model -- --help
-```
+A host supplies the OCCT-backed imports and runs the module. This fork does not
+ship one (upstream's `viewer` was removed); FerroCAD or any other app can be that
+host by implementing the WIT interface.
 
 ## Code Formatting
 
