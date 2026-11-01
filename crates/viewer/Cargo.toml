@@ -23,5 +23,6 @@ wit-component = { version = "0.229", default-features = false }
 naga = { version = "24", features = ["wgsl-in"] }
 
 [features]
-default = ["builtin"]
+# Same default as `opencascade`: link the shared libraries CMake finds. Use
+# `--features builtin` to compile the vendored OCCT instead.
 builtin = ["opencascade/builtin", "examples/builtin"]

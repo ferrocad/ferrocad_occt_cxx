@@ -15,5 +15,9 @@ opencascade-kicad-parser = { version = "0.3", path = "../kicad-parser" }
 thiserror = "1"
 
 [features]
-default = ["builtin"]
+# Link the OpenCASCADE shared libraries that CMake finds (`OpenCASCADE_DIR` /
+# `OCCT_INCLUDE_DIR`, e.g. a micromamba/conda prefix). `builtin` opts into the
+# vendored static build instead; it is not the default because it compiles the
+# whole kernel from source (minutes, not seconds, and it cannot reuse the
+# distribution's `.so`).
 builtin = ["opencascade-sys/builtin"]

@@ -20,7 +20,12 @@ pub struct Mesher {
 
 impl Mesher {
     pub fn try_new(shape: &Shape, triangulation_tolerance: f64) -> Result<Self, Error> {
-        let inner = ffi::b_rep_mesh::IncrementalMesh_new(&shape.inner, triangulation_tolerance);
+        let inner = ffi::b_rep_mesh::IncrementalMesh_new(
+            &shape.inner,
+            triangulation_tolerance,
+            false,
+            0.5,
+        );
 
         if inner.IsDone() {
             Ok(Self { inner })
@@ -88,7 +93,7 @@ impl Mesher {
             // TODO(bschwind) - Use `location` to transform the normals.
             let normal_array = ffi::t_col_gp::TColgp_Array1OfDir_new(0, face_point_count);
 
-            ffi::b_rep_lib::BRepLib_ToolTriangulatedShape::ComputeNormals(
+            ffi::b_rep_lib::BRepLib_ToolTriangulatedShape_ComputeNormals(
                 &face.inner,
                 &triangulation_handle,
             );

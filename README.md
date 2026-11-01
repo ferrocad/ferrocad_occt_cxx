@@ -75,20 +75,36 @@ There are other benefits:
 * The `OCCT` codebase is included as a git submodule. Clone the repo with the `--recursive` flag, or use `git submodule update --init` to fetch the submodule.
 * `cargo build --release`
 
-### Using pre-installed OpenCASCADE
+### Using a pre-installed OpenCASCADE (the default)
 
-If you have the `OCCT` library already installed via a package manager, you can dynamically link to it which will significantly decrease build times. By default, the `builtin` feature is enabled which means compiling OCCT from source. You can disable it via the command line:
+The default build links the shared OpenCASCADE libraries that CMake finds. Point it at a
+prefix with `OpenCASCADE_DIR` (the directory containing `OpenCASCADEConfig.cmake`) and
+`OCCT_INCLUDE_DIR`; a micromamba/conda prefix works:
 
-`cargo build --no-default-features`
-
-or by specifying `default-features = false` in your `Cargo.toml`:
-
+```sh
+micromamba create -y -p .occt/prefix -c conda-forge occt=7.8.1
+export OpenCASCADE_DIR="$PWD/.occt/prefix/lib/cmake/opencascade"
+export OCCT_INCLUDE_DIR="$PWD/.occt/prefix/include/opencascade"
+export LD_LIBRARY_PATH="$PWD/.occt/prefix/lib"
+cargo build
 ```
-[dependencies]
-opencascade = { version = "0.2", default-features = false }
+
+This is the fast path, it is what FerroCAD uses, and it keeps OCCT a shared library
+(one kernel on disk, updated independently of the binary).
+
+### Building OCCT from source (`builtin`)
+
+If no OCCT is installed, enable the vendored build. It compiles the whole kernel from
+the `occt-sys` submodule — minutes to build, and statically linked:
+
+```sh
+cargo build --features builtin
 ```
 
-NOTE: If you have installed `OCCT` manually you may need specify the path to it via the `DEP_OCCT_ROOT` environment variable. The specified root directory usually contains `include` and `lib` directories.
+Downstream crates opt in the same way: `opencascade = { version = "0.3", features =
+["builtin"] }`.
+
+NOTE: If you installed `OCCT` manually you may need specify the path to it via the `DEP_OCCT_ROOT` environment variable. The specified root directory usually contains `include` and `lib` directories.
 
 ## Run Examples
 
