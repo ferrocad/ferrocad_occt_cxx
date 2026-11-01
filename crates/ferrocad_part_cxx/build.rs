@@ -20,7 +20,12 @@ fn main() {
     ] {
         println!("cargo:rerun-if-env-changed={var}");
     }
-    for file in ["include/gtransform.hxx", "src/lib.rs"] {
+    for file in [
+        "include/gtransform.hxx",
+        "include/chfi2d.hxx",
+        "src/lib.rs",
+        "src/chfi2d.rs",
+    ] {
         println!("cargo:rerun-if-changed={file}");
     }
 
@@ -31,7 +36,7 @@ fn main() {
         )
     });
 
-    cxx_build::bridge("src/lib.rs")
+    cxx_build::bridges(["src/lib.rs", "src/chfi2d.rs"])
         .include(&include)
         .std("c++14")
         .compile("ferrocad-part-cxx");

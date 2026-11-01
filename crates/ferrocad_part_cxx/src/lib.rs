@@ -10,6 +10,8 @@
 //! be donated to `opencascade-sys` (or merged into a sibling crate) without
 //! carrying FerroCAD-specific behaviour.
 
+pub mod chfi2d;
+
 #[cxx::bridge]
 mod ffi {
     unsafe extern "C++" {
