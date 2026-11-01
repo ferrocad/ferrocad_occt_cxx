@@ -21,7 +21,6 @@ fn main() {
         println!("cargo:rerun-if-env-changed={var}");
     }
     for file in [
-        "include/chfi2d.hxx",
         "include/curve.hxx",
         "include/geom2d.hxx",
         "include/ops.hxx",
@@ -29,7 +28,6 @@ fn main() {
         "include/shape_ops.hxx",
         "include/shapefix.hxx",
         "include/surface_ops.hxx",
-        "src/chfi2d.rs",
         "src/lib.rs",
         "src/ops.rs",
         "src/shapefix.rs",
@@ -46,7 +44,6 @@ fn main() {
     });
 
     cxx_build::bridges([
-        "src/chfi2d.rs",
         "src/shapefix.rs",
         "src/ops.rs",
         "src/surface_ops.rs",

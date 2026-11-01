@@ -15,7 +15,6 @@
 //! of their entries still mirror a FreeCAD `TopoShape` method or carry flat
 //! `Vec<f64>` payloads. Splitting those is tracked in ferrocad/ferrocad#2.
 
-pub mod chfi2d;
 pub mod ops;
 pub mod shapefix;
 pub mod surface_ops;
