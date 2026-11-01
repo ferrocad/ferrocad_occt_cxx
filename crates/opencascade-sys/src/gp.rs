@@ -37,6 +37,7 @@ mod inner {
         pub fn X(self: &gp_Vec) -> f64;
         pub fn Y(self: &gp_Vec) -> f64;
         pub fn Z(self: &gp_Vec) -> f64;
+        pub fn Magnitude(self: &gp_Vec) -> f64;
 
         type gp_Lin;
         #[cxx_name = "construct_unique"]
@@ -45,6 +46,10 @@ mod inner {
         type gp_Circ;
         #[cxx_name = "construct_unique"]
         pub fn gp_Circ_new(axis: &gp_Ax2, radius: f64) -> UniquePtr<gp_Circ>;
+
+        type gp_Pln;
+        #[cxx_name = "construct_unique"]
+        pub fn gp_Pln_new(point: &gp_Pnt, dir: &gp_Dir) -> UniquePtr<gp_Pln>;
 
         type gp_Ax1;
         #[cxx_name = "construct_unique"]

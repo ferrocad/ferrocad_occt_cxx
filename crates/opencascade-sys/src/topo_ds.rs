@@ -37,6 +37,8 @@ mod inner {
         pub fn cast_edge_to_shape(wire: &TopoDS_Edge) -> &TopoDS_Shape;
         #[cxx_name = "construct_unique"]
         pub fn TopoDS_Edge_to_owned(shape: &TopoDS_Edge) -> UniquePtr<TopoDS_Edge>;
+        #[cxx_name = "construct_unique"]
+        pub fn TopoDS_Edge_new() -> UniquePtr<TopoDS_Edge>;
 
         type TopoDS_Wire;
         #[cxx_name = "upcast_ref"]
@@ -86,6 +88,12 @@ mod inner {
         );
         pub fn IsNull(self: &TopoDS_Shape) -> bool;
         pub fn IsEqual(self: &TopoDS_Shape, other: &TopoDS_Shape) -> bool;
+        /// Same `TShape` and `Location`, orientation ignored.
+        pub fn IsSame(self: &TopoDS_Shape, other: &TopoDS_Shape) -> bool;
+        /// Same `TShape`, any location and orientation.
+        pub fn IsPartner(self: &TopoDS_Shape, other: &TopoDS_Shape) -> bool;
+        /// A copy with the complement of this shape's orientation.
+        pub fn shape_complement(shape: &TopoDS_Shape) -> UniquePtr<TopoDS_Shape>;
         pub fn ShapeType(self: &TopoDS_Shape) -> TopAbs_ShapeEnum;
         pub fn Orientation(self: &TopoDS_Shape) -> TopAbs_Orientation;
 

@@ -9,3 +9,9 @@
 #include <TopoDS_Solid.hxx>
 #include <TopoDS_Vertex.hxx>
 #include <bindings_common.hxx>
+
+// `Complement()` mutates in place and `Complemented()` returns by value, which
+// cxx cannot express for an opaque type.
+inline std::unique_ptr<TopoDS_Shape> shape_complement(const TopoDS_Shape &shape) {
+  return std::unique_ptr<TopoDS_Shape>(new TopoDS_Shape(shape.Complemented()));
+}

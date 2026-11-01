@@ -17,3 +17,11 @@ inline std::unique_ptr<TopoDS_Vertex> TopExp_FirstVertex(const TopoDS_Edge &edge
 inline std::unique_ptr<TopoDS_Vertex> TopExp_LastVertex(const TopoDS_Edge &edge) {
   return std::unique_ptr<TopoDS_Vertex>(new TopoDS_Vertex(TopExp::LastVertex(edge)));
 }
+
+// `TopExp_Explorer(S, ToFind, ToAvoid)`: explore `ToFind` sub-shapes without
+// descending into `ToAvoid` ones (`TopAbs_SHAPE` avoids nothing).
+inline std::unique_ptr<TopExp_Explorer> TopExp_Explorer_new_avoid(const TopoDS_Shape &shape,
+                                                                  TopAbs_ShapeEnum to_find,
+                                                                  TopAbs_ShapeEnum to_avoid) {
+  return std::unique_ptr<TopExp_Explorer>(new TopExp_Explorer(shape, to_find, to_avoid));
+}

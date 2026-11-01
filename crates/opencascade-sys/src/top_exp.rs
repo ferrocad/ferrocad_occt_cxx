@@ -25,6 +25,13 @@ mod inner {
         pub fn ExplorerCurrentShape(explorer: &TopExp_Explorer) -> UniquePtr<TopoDS_Shape>;
         pub fn Current(self: &TopExp_Explorer) -> &TopoDS_Shape;
 
+        /// `TopExp_Explorer(shape, to_find, to_avoid)`.
+        pub fn TopExp_Explorer_new_avoid(
+            shape: &TopoDS_Shape,
+            to_find: TopAbs_ShapeEnum,
+            to_avoid: TopAbs_ShapeEnum,
+        ) -> UniquePtr<TopExp_Explorer>;
+
         type TopExp;
         #[Self = "TopExp"]
         #[cxx_name = "Vertices"]

@@ -13,5 +13,7 @@ mod inner {
         #[cxx_name = "construct_unique"]
         fn Location_from_transform(transform: &gp_Trsf) -> UniquePtr<TopLoc_Location>;
         fn TopLoc_Location_Transformation(location: &TopLoc_Location) -> UniquePtr<gp_Trsf>;
+        /// `TopLoc_Location::HashCode()` (OCCT 7.8 takes no bound).
+        fn HashCode(self: &TopLoc_Location) -> usize;
     }
 }

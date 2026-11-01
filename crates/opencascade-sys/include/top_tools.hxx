@@ -31,3 +31,9 @@ inline const TopoDS_Shape &TopTools_HSequenceOfShape_value(const Handle_TopTools
                                                            Standard_Integer index) {
   return handle->Value(index);
 }
+
+// `Clear` takes an optional allocator parameter in NCollection, so cxx cannot
+// take the member address; the default-allocator form is what callers want.
+inline void list_clear(TopTools_ListOfShape &list) { list.Clear(); }
+
+inline void map_clear(TopTools_IndexedMapOfShape &map) { map.Clear(); }

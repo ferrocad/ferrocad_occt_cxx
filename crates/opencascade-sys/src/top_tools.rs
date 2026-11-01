@@ -22,6 +22,8 @@ mod inner {
             face: &TopoDS_Shape,
         ) -> Pin<&mut TopoDS_Shape>;
         pub fn Size(self: &TopTools_ListOfShape) -> i32;
+        pub fn IsEmpty(self: &TopTools_ListOfShape) -> bool;
+        pub fn list_clear(list: Pin<&mut TopTools_ListOfShape>);
 
         type TopTools_ListIteratorOfListOfShape;
         #[cxx_name = "construct_unique"]
@@ -39,6 +41,7 @@ mod inner {
         pub fn FindKey(self: &TopTools_IndexedMapOfShape, index: i32) -> &TopoDS_Shape;
         pub fn FindIndex(self: &TopTools_IndexedMapOfShape, shape: &TopoDS_Shape) -> i32;
         pub fn Add(self: Pin<&mut TopTools_IndexedMapOfShape>, shape: &TopoDS_Shape) -> i32;
+        pub fn map_clear(map: Pin<&mut TopTools_IndexedMapOfShape>);
 
         type TopTools_IndexedDataMapOfShapeListOfShape;
         #[cxx_name = "construct_unique"]
