@@ -17,6 +17,12 @@ This crate is **bindings only**:
 If a function needs to know what FreeCAD's `TopoShape` would do, or encodes
 FerroCAD's ABI, it belongs in `ferrocad_occt` (Rust), not here.
 
+## Status
+
+`gtransform` and `ChFi2d` return typed `Result`s. `ShapeFix` was moved here
+verbatim from `ferrocad_occt` and still mirrors OCCT's bool/null returns;
+converting its 75 exception-swallowing sites to `Result` is the next step.
+
 ## Donation
 
 The code here is written by FerroCAD and licensed `LGPL-2.1`, matching
