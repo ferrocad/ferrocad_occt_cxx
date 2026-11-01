@@ -19,9 +19,8 @@ FerroCAD's ABI, it belongs in `ferrocad_occt` (Rust), not here.
 
 ## Status
 
-`gtransform` and `ChFi2d` return typed `Result`s. `ShapeFix` was moved here
-verbatim from `ferrocad_occt` and still mirrors OCCT's bool/null returns;
-converting its 75 exception-swallowing sites to `Result` is the next step.
+`gtransform`, `ChFi2d` and `ShapeFix` all return typed `Result`s. The C++
+boundary translates `Standard_Failure`; no sentinel values cross the bridge.
 
 ## Donation
 
