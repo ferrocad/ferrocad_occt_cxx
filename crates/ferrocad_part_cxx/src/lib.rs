@@ -13,7 +13,9 @@
 pub mod bnd;
 pub mod chfi2d;
 pub mod history;
+pub mod ops;
 pub mod shapefix;
+pub mod surface_ops;
 pub mod topology;
 
 #[cxx::bridge]
