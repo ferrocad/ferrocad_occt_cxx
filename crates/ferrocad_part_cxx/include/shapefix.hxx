@@ -8,9 +8,9 @@
 // `Handle`, whose `operator->` is const, so no `Pin` is needed on the Rust side
 // and a fixer can be called through a shared reference.
 //
-// No method lets an OCCT exception escape into cxx: `Standard_Failure` (and the
-// type-mismatch a bad cast raises) is caught and reported as a null/`false`
-// result, which the Rust layer turns into `Part.OCCError`.
+// Every fallible method throws a `std::exception` on OCCT failure; the cxx
+// bridge declares those methods as `Result`, and the Rust layer maps the error
+// to `Part.OCCError`. No exception may cross the bridge.
 
 #include <BRep_Tool.hxx>
 #include <Geom_Plane.hxx>
@@ -38,9 +38,36 @@
 #include <gp_Pnt.hxx>
 
 #include <memory>
+#include <stdexcept>
 #include <vector>
 
 #include "rust/cxx.h"
+
+// Translate an OCCT failure for cxx's `Result` shim. OCCT 7.x's
+// `Standard_Failure` is not a `std::exception`; note that a bad `TopoDS` cast
+// raises `Standard_TypeMismatch`, which also derives from `Standard_Failure`.
+namespace fc_shapefix_internal
+{
+[[noreturn]] inline void rethrow(const Standard_Failure& failure)
+{
+    const char* message = failure.GetMessageString();
+    throw std::runtime_error(message && *message ? message : "OCCT reported a failure");
+}
+}  // namespace fc_shapefix_internal
+
+#define FC_SHAPEFIX_CATCH                                                   \
+    catch (const Standard_Failure& failure)                               \
+    {                                                                      \
+        fc_shapefix_internal::rethrow(failure);                            \
+    }                                                                      \
+    catch (const std::exception&)                                          \
+    {                                                                      \
+        throw;                                                             \
+    }                                                                      \
+    catch (...)                                                            \
+    {                                                                      \
+        throw std::runtime_error("unknown OCCT exception");                \
+    }
 
 // Root methods shared by every fixer derived from `ShapeFix_Root`. `h` is the
 // concrete handle member every wrapper class declares.
@@ -111,9 +138,7 @@ public:
         try {
             return h->FixRemovePCurve(TopoDS::Edge(edge), TopoDS::Face(face));
         }
-        catch (...) {
-            return false;
-        }
+        FC_SHAPEFIX_CATCH
     }
 
     bool fix_remove_pcurve_surface(const TopoDS_Shape& edge, double nx, double ny,
@@ -124,9 +149,7 @@ public:
                                       fc_shapefix_internal::anchor_plane(edge, nx, ny, nz),
                                       TopLoc_Location());
         }
-        catch (...) {
-            return false;
-        }
+        FC_SHAPEFIX_CATCH
     }
 
     bool fix_remove_curve3d(const TopoDS_Shape& edge) const
@@ -134,9 +157,7 @@ public:
         try {
             return h->FixRemoveCurve3d(TopoDS::Edge(edge));
         }
-        catch (...) {
-            return false;
-        }
+        FC_SHAPEFIX_CATCH
     }
 
     bool fix_add_pcurve_face(const TopoDS_Shape& edge, const TopoDS_Shape& face,
@@ -145,9 +166,7 @@ public:
         try {
             return h->FixAddPCurve(TopoDS::Edge(edge), TopoDS::Face(face), seam, prec);
         }
-        catch (...) {
-            return false;
-        }
+        FC_SHAPEFIX_CATCH
     }
 
     bool fix_add_pcurve_surface(const TopoDS_Shape& edge, double nx, double ny,
@@ -158,9 +177,7 @@ public:
                                    fc_shapefix_internal::anchor_plane(edge, nx, ny, nz),
                                    TopLoc_Location(), seam, prec);
         }
-        catch (...) {
-            return false;
-        }
+        FC_SHAPEFIX_CATCH
     }
 
     bool fix_add_curve3d(const TopoDS_Shape& edge) const
@@ -168,9 +185,7 @@ public:
         try {
             return h->FixAddCurve3d(TopoDS::Edge(edge));
         }
-        catch (...) {
-            return false;
-        }
+        FC_SHAPEFIX_CATCH
     }
 
     bool fix_vertex_tolerance_face(const TopoDS_Shape& edge, const TopoDS_Shape& face) const
@@ -178,9 +193,7 @@ public:
         try {
             return h->FixVertexTolerance(TopoDS::Edge(edge), TopoDS::Face(face));
         }
-        catch (...) {
-            return false;
-        }
+        FC_SHAPEFIX_CATCH
     }
 
     bool fix_vertex_tolerance(const TopoDS_Shape& edge) const
@@ -188,9 +201,7 @@ public:
         try {
             return h->FixVertexTolerance(TopoDS::Edge(edge));
         }
-        catch (...) {
-            return false;
-        }
+        FC_SHAPEFIX_CATCH
     }
 
     bool fix_reversed2d_face(const TopoDS_Shape& edge, const TopoDS_Shape& face) const
@@ -198,9 +209,7 @@ public:
         try {
             return h->FixReversed2d(TopoDS::Edge(edge), TopoDS::Face(face));
         }
-        catch (...) {
-            return false;
-        }
+        FC_SHAPEFIX_CATCH
     }
 
     bool fix_reversed2d_surface(const TopoDS_Shape& edge, double nx, double ny,
@@ -211,9 +220,7 @@ public:
                                     fc_shapefix_internal::anchor_plane(edge, nx, ny, nz),
                                     TopLoc_Location());
         }
-        catch (...) {
-            return false;
-        }
+        FC_SHAPEFIX_CATCH
     }
 
     bool fix_same_parameter(const TopoDS_Shape& edge, double tolerance) const
@@ -221,9 +228,7 @@ public:
         try {
             return h->FixSameParameter(TopoDS::Edge(edge), tolerance);
         }
-        catch (...) {
-            return false;
-        }
+        FC_SHAPEFIX_CATCH
     }
 
     bool fix_same_parameter_face(const TopoDS_Shape& edge, const TopoDS_Shape& face,
@@ -232,9 +237,7 @@ public:
         try {
             return h->FixSameParameter(TopoDS::Edge(edge), TopoDS::Face(face), tolerance);
         }
-        catch (...) {
-            return false;
-        }
+        FC_SHAPEFIX_CATCH
     }
 };
 
@@ -259,8 +262,7 @@ public:
         try {
             h->Init(TopoDS::Wire(wire), TopoDS::Face(face), prec);
         }
-        catch (...) {
-        }
+        FC_SHAPEFIX_CATCH
     }
 
     bool load(const TopoDS_Shape& wire) const
@@ -269,9 +271,7 @@ public:
             h->Load(TopoDS::Wire(wire));
             return true;
         }
-        catch (...) {
-            return false;
-        }
+        FC_SHAPEFIX_CATCH
     }
 
     bool set_face(const TopoDS_Shape& face) const
@@ -280,9 +280,7 @@ public:
             h->SetFace(TopoDS::Face(face));
             return true;
         }
-        catch (...) {
-            return false;
-        }
+        FC_SHAPEFIX_CATCH
     }
 
     bool set_surface(double ox, double oy, double oz, double nx, double ny, double nz) const
@@ -291,9 +289,7 @@ public:
             h->SetSurface(fc_shapefix_internal::plane_handle(ox, oy, oz, nx, ny, nz));
             return true;
         }
-        catch (...) {
-            return false;
-        }
+        FC_SHAPEFIX_CATCH
     }
 
     bool set_surface_placed(double ox, double oy, double oz, double nx, double ny,
@@ -306,9 +302,7 @@ public:
                           TopLoc_Location());
             return true;
         }
-        catch (...) {
-            return false;
-        }
+        FC_SHAPEFIX_CATCH
     }
 
     void set_max_tail_angle(double angle) const { h->SetMaxTailAngle(angle); }
@@ -322,9 +316,7 @@ public:
         try {
             return std::make_unique<TopoDS_Shape>(h->Wire());
         }
-        catch (...) {
-            return nullptr;
-        }
+        FC_SHAPEFIX_CATCH
     }
 
     std::unique_ptr<TopoDS_Shape> wire_api_make() const
@@ -332,9 +324,7 @@ public:
         try {
             return std::make_unique<TopoDS_Shape>(h->WireAPIMake());
         }
-        catch (...) {
-            return nullptr;
-        }
+        FC_SHAPEFIX_CATCH
     }
 
     std::unique_ptr<TopoDS_Shape> face() const
@@ -342,9 +332,7 @@ public:
         try {
             return std::make_unique<TopoDS_Shape>(h->Face());
         }
-        catch (...) {
-            return nullptr;
-        }
+        FC_SHAPEFIX_CATCH
     }
 
     bool perform() const
@@ -352,9 +340,7 @@ public:
         try {
             return h->Perform();
         }
-        catch (...) {
-            return false;
-        }
+        FC_SHAPEFIX_CATCH
     }
 
     void clear_modes() const { h->ClearModes(); }
@@ -370,9 +356,7 @@ public:
         try {
             return h->FixReorder();
         }
-        catch (...) {
-            return false;
-        }
+        FC_SHAPEFIX_CATCH
     }
 
     int fix_small_global(bool lock, double prec) const
@@ -380,9 +364,7 @@ public:
         try {
             return h->FixSmall(lock, prec);
         }
-        catch (...) {
-            return 0;
-        }
+        FC_SHAPEFIX_CATCH
     }
 
     bool fix_small_one(int num, bool lock, double prec) const
@@ -390,9 +372,7 @@ public:
         try {
             return h->FixSmall(num, lock, prec);
         }
-        catch (...) {
-            return false;
-        }
+        FC_SHAPEFIX_CATCH
     }
 
     bool fix_connected(double prec) const
@@ -400,9 +380,7 @@ public:
         try {
             return h->FixConnected(prec);
         }
-        catch (...) {
-            return false;
-        }
+        FC_SHAPEFIX_CATCH
     }
 
     bool fix_connected_one(int num, double prec) const
@@ -410,9 +388,7 @@ public:
         try {
             return h->FixConnected(num, prec);
         }
-        catch (...) {
-            return false;
-        }
+        FC_SHAPEFIX_CATCH
     }
 
     bool fix_edge_curves() const
@@ -420,9 +396,7 @@ public:
         try {
             return h->FixEdgeCurves();
         }
-        catch (...) {
-            return false;
-        }
+        FC_SHAPEFIX_CATCH
     }
 
     bool fix_degenerated() const
@@ -430,9 +404,7 @@ public:
         try {
             return h->FixDegenerated();
         }
-        catch (...) {
-            return false;
-        }
+        FC_SHAPEFIX_CATCH
     }
 
     bool fix_degenerated_one(int num) const
@@ -440,9 +412,7 @@ public:
         try {
             return h->FixDegenerated(num);
         }
-        catch (...) {
-            return false;
-        }
+        FC_SHAPEFIX_CATCH
     }
 
     bool fix_self_intersection() const
@@ -450,9 +420,7 @@ public:
         try {
             return h->FixSelfIntersection();
         }
-        catch (...) {
-            return false;
-        }
+        FC_SHAPEFIX_CATCH
     }
 
     bool fix_lacking(bool force) const
@@ -460,9 +428,7 @@ public:
         try {
             return h->FixLacking(force);
         }
-        catch (...) {
-            return false;
-        }
+        FC_SHAPEFIX_CATCH
     }
 
     bool fix_lacking_one(int num, bool force) const
@@ -470,9 +436,7 @@ public:
         try {
             return h->FixLacking(num, force);
         }
-        catch (...) {
-            return false;
-        }
+        FC_SHAPEFIX_CATCH
     }
 
     bool fix_closed(double prec) const
@@ -480,9 +444,7 @@ public:
         try {
             return h->FixClosed(prec);
         }
-        catch (...) {
-            return false;
-        }
+        FC_SHAPEFIX_CATCH
     }
 
     bool fix_gaps3d() const
@@ -490,9 +452,7 @@ public:
         try {
             return h->FixGaps3d();
         }
-        catch (...) {
-            return false;
-        }
+        FC_SHAPEFIX_CATCH
     }
 
     bool fix_gaps2d() const
@@ -500,9 +460,7 @@ public:
         try {
             return h->FixGaps2d();
         }
-        catch (...) {
-            return false;
-        }
+        FC_SHAPEFIX_CATCH
     }
 
     bool fix_seam(int num) const
@@ -510,9 +468,7 @@ public:
         try {
             return h->FixSeam(num);
         }
-        catch (...) {
-            return false;
-        }
+        FC_SHAPEFIX_CATCH
     }
 
     bool fix_shifted() const
@@ -520,9 +476,7 @@ public:
         try {
             return h->FixShifted();
         }
-        catch (...) {
-            return false;
-        }
+        FC_SHAPEFIX_CATCH
     }
 
     bool fix_notched_edges() const
@@ -530,9 +484,7 @@ public:
         try {
             return h->FixNotchedEdges();
         }
-        catch (...) {
-            return false;
-        }
+        FC_SHAPEFIX_CATCH
     }
 
     bool fix_gap3d(int num, bool convert) const
@@ -540,9 +492,7 @@ public:
         try {
             return h->FixGap3d(num, convert);
         }
-        catch (...) {
-            return false;
-        }
+        FC_SHAPEFIX_CATCH
     }
 
     bool fix_gap2d(int num, bool convert) const
@@ -550,9 +500,7 @@ public:
         try {
             return h->FixGap2d(num, convert);
         }
-        catch (...) {
-            return false;
-        }
+        FC_SHAPEFIX_CATCH
     }
 
     bool fix_tails() const
@@ -560,9 +508,7 @@ public:
         try {
             return h->FixTails();
         }
-        catch (...) {
-            return false;
-        }
+        FC_SHAPEFIX_CATCH
     }
 
     // `ModifyTopologyMode` / `ModifyGeometryMode` / `ClosedWireMode` /
@@ -663,9 +609,7 @@ inline std::unique_ptr<FcShapeFixWire> fc_shapefix_wire_from_wire(const TopoDS_S
         return std::make_unique<FcShapeFixWire>(new ShapeFix_Wire(
             TopoDS::Wire(wire), TopoDS::Face(face), prec));
     }
-    catch (...) {
-        return nullptr;
-    }
+    FC_SHAPEFIX_CATCH
 }
 
 // --- A list of shapes (the output of `ShapeFix_Face::FixLoopWire`) ----------
@@ -698,9 +642,7 @@ public:
             h->Init(TopoDS::Face(face));
             return true;
         }
-        catch (...) {
-            return false;
-        }
+        FC_SHAPEFIX_CATCH
     }
 
     bool init_plane(double ox, double oy, double oz, double nx, double ny, double nz,
@@ -710,9 +652,7 @@ public:
             h->Init(fc_shapefix_internal::plane_handle(ox, oy, oz, nx, ny, nz), prec, fwd);
             return true;
         }
-        catch (...) {
-            return false;
-        }
+        FC_SHAPEFIX_CATCH
     }
 
     bool add(const TopoDS_Shape& wire) const
@@ -721,9 +661,7 @@ public:
             h->Add(TopoDS::Wire(wire));
             return true;
         }
-        catch (...) {
-            return false;
-        }
+        FC_SHAPEFIX_CATCH
     }
 
     bool perform() const
@@ -731,9 +669,7 @@ public:
         try {
             return h->Perform();
         }
-        catch (...) {
-            return false;
-        }
+        FC_SHAPEFIX_CATCH
     }
 
     bool fix_orientation() const
@@ -741,9 +677,7 @@ public:
         try {
             return h->FixOrientation();
         }
-        catch (...) {
-            return false;
-        }
+        FC_SHAPEFIX_CATCH
     }
 
     bool fix_add_natural_bound() const
@@ -751,9 +685,7 @@ public:
         try {
             return h->FixAddNaturalBound();
         }
-        catch (...) {
-            return false;
-        }
+        FC_SHAPEFIX_CATCH
     }
 
     bool fix_missing_seam() const
@@ -761,9 +693,7 @@ public:
         try {
             return h->FixMissingSeam();
         }
-        catch (...) {
-            return false;
-        }
+        FC_SHAPEFIX_CATCH
     }
 
     bool fix_small_area_wire(bool remove_small) const
@@ -771,9 +701,7 @@ public:
         try {
             return h->FixSmallAreaWire(remove_small);
         }
-        catch (...) {
-            return false;
-        }
+        FC_SHAPEFIX_CATCH
     }
 
     std::unique_ptr<FcShapeList> fix_loop_wire() const
@@ -786,9 +714,7 @@ public:
                 out->items.push_back(wires.Value(i));
             }
         }
-        catch (...) {
-            out->ok = false;
-        }
+        FC_SHAPEFIX_CATCH
         return out;
     }
 
@@ -797,9 +723,7 @@ public:
         try {
             return h->FixIntersectingWires();
         }
-        catch (...) {
-            return false;
-        }
+        FC_SHAPEFIX_CATCH
     }
 
     bool fix_wires_two_coincident_edges() const
@@ -807,9 +731,7 @@ public:
         try {
             return h->FixWiresTwoCoincEdges();
         }
-        catch (...) {
-            return false;
-        }
+        FC_SHAPEFIX_CATCH
     }
 
     bool fix_periodic_degenerated() const
@@ -817,9 +739,7 @@ public:
         try {
             return h->FixPeriodicDegenerated();
         }
-        catch (...) {
-            return false;
-        }
+        FC_SHAPEFIX_CATCH
     }
 
     std::unique_ptr<TopoDS_Shape> face() const
@@ -827,9 +747,7 @@ public:
         try {
             return std::make_unique<TopoDS_Shape>(h->Face());
         }
-        catch (...) {
-            return nullptr;
-        }
+        FC_SHAPEFIX_CATCH
     }
 
     std::unique_ptr<TopoDS_Shape> result() const
@@ -837,9 +755,7 @@ public:
         try {
             return std::make_unique<TopoDS_Shape>(h->Result());
         }
-        catch (...) {
-            return nullptr;
-        }
+        FC_SHAPEFIX_CATCH
     }
 
     std::unique_ptr<FcShapeFixWire> fix_wire_tool() const
@@ -898,9 +814,7 @@ inline std::unique_ptr<FcShapeFixFace> fc_shapefix_face_from_face(const TopoDS_S
     try {
         return std::make_unique<FcShapeFixFace>(new ShapeFix_Face(TopoDS::Face(face)));
     }
-    catch (...) {
-        return nullptr;
-    }
+    FC_SHAPEFIX_CATCH
 }
 
 inline std::unique_ptr<FcShapeFixFace> fc_shapefix_face_from_plane(double ox, double oy,
@@ -913,9 +827,7 @@ inline std::unique_ptr<FcShapeFixFace> fc_shapefix_face_from_plane(double ox, do
         fix->Init(fc_shapefix_internal::plane_handle(ox, oy, oz, nx, ny, nz), prec, fwd);
         return std::make_unique<FcShapeFixFace>(fix);
     }
-    catch (...) {
-        return nullptr;
-    }
+    FC_SHAPEFIX_CATCH
 }
 
 // --- Shell -----------------------------------------------------------------
@@ -935,9 +847,7 @@ public:
             h->Init(TopoDS::Shell(shell));
             return true;
         }
-        catch (...) {
-            return false;
-        }
+        FC_SHAPEFIX_CATCH
     }
 
     bool perform() const
@@ -945,9 +855,7 @@ public:
         try {
             return h->Perform();
         }
-        catch (...) {
-            return false;
-        }
+        FC_SHAPEFIX_CATCH
     }
 
     std::unique_ptr<TopoDS_Shape> shell() const
@@ -955,9 +863,7 @@ public:
         try {
             return std::make_unique<TopoDS_Shape>(h->Shell());
         }
-        catch (...) {
-            return nullptr;
-        }
+        FC_SHAPEFIX_CATCH
     }
 
     std::unique_ptr<TopoDS_Shape> shape() const
@@ -965,9 +871,7 @@ public:
         try {
             return std::make_unique<TopoDS_Shape>(h->Shape());
         }
-        catch (...) {
-            return nullptr;
-        }
+        FC_SHAPEFIX_CATCH
     }
 
     std::unique_ptr<TopoDS_Shape> error_faces() const
@@ -975,9 +879,7 @@ public:
         try {
             return std::make_unique<TopoDS_Shape>(h->ErrorFaces());
         }
-        catch (...) {
-            return nullptr;
-        }
+        FC_SHAPEFIX_CATCH
     }
 
     int nb_shells() const { return h->NbShells(); }
@@ -993,9 +895,7 @@ public:
         try {
             return h->FixFaceOrientation(TopoDS::Shell(shell), multi_connex, non_manifold);
         }
-        catch (...) {
-            return false;
-        }
+        FC_SHAPEFIX_CATCH
     }
 
     void set_non_manifold_flag(bool value) const { h->SetNonManifoldFlag(value); }
@@ -1016,9 +916,7 @@ inline std::unique_ptr<FcShapeFixShell> fc_shapefix_shell_from_shell(const TopoD
     try {
         return std::make_unique<FcShapeFixShell>(new ShapeFix_Shell(TopoDS::Shell(shell)));
     }
-    catch (...) {
-        return nullptr;
-    }
+    FC_SHAPEFIX_CATCH
 }
 
 // --- Solid -----------------------------------------------------------------
@@ -1038,9 +936,7 @@ public:
             h->Init(TopoDS::Solid(solid));
             return true;
         }
-        catch (...) {
-            return false;
-        }
+        FC_SHAPEFIX_CATCH
     }
 
     bool perform() const
@@ -1048,9 +944,7 @@ public:
         try {
             return h->Perform();
         }
-        catch (...) {
-            return false;
-        }
+        FC_SHAPEFIX_CATCH
     }
 
     std::unique_ptr<TopoDS_Shape> solid_from_shell(const TopoDS_Shape& shell) const
@@ -1058,9 +952,7 @@ public:
         try {
             return std::make_unique<TopoDS_Shape>(h->SolidFromShell(TopoDS::Shell(shell)));
         }
-        catch (...) {
-            return nullptr;
-        }
+        FC_SHAPEFIX_CATCH
     }
 
     std::unique_ptr<TopoDS_Shape> solid() const
@@ -1068,9 +960,7 @@ public:
         try {
             return std::make_unique<TopoDS_Shape>(h->Solid());
         }
-        catch (...) {
-            return nullptr;
-        }
+        FC_SHAPEFIX_CATCH
     }
 
     std::unique_ptr<TopoDS_Shape> shape() const
@@ -1078,9 +968,7 @@ public:
         try {
             return std::make_unique<TopoDS_Shape>(h->Shape());
         }
-        catch (...) {
-            return nullptr;
-        }
+        FC_SHAPEFIX_CATCH
     }
 
     std::unique_ptr<FcShapeFixShell> fix_shell_tool() const
@@ -1112,9 +1000,7 @@ inline std::unique_ptr<FcShapeFixSolid> fc_shapefix_solid_from_solid(const TopoD
     try {
         return std::make_unique<FcShapeFixSolid>(new ShapeFix_Solid(TopoDS::Solid(solid)));
     }
-    catch (...) {
-        return nullptr;
-    }
+    FC_SHAPEFIX_CATCH
 }
 
 // --- Shape -----------------------------------------------------------------
@@ -1134,9 +1020,7 @@ public:
             h->Init(shape);
             return true;
         }
-        catch (...) {
-            return false;
-        }
+        FC_SHAPEFIX_CATCH
     }
 
     bool perform() const
@@ -1144,9 +1028,7 @@ public:
         try {
             return h->Perform();
         }
-        catch (...) {
-            return false;
-        }
+        FC_SHAPEFIX_CATCH
     }
 
     std::unique_ptr<TopoDS_Shape> shape() const
@@ -1154,9 +1036,7 @@ public:
         try {
             return std::make_unique<TopoDS_Shape>(h->Shape());
         }
-        catch (...) {
-            return nullptr;
-        }
+        FC_SHAPEFIX_CATCH
     }
 
     std::unique_ptr<FcShapeFixSolid> fix_solid_tool() const
@@ -1213,7 +1093,5 @@ inline std::unique_ptr<FcShapeFixShape> fc_shapefix_shape_from_shape(const TopoD
     try {
         return std::make_unique<FcShapeFixShape>(new ShapeFix_Shape(shape));
     }
-    catch (...) {
-        return nullptr;
-    }
+    FC_SHAPEFIX_CATCH
 }
