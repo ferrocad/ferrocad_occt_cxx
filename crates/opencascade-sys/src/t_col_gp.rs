@@ -29,6 +29,19 @@ mod inner {
             index: i32,
         ) -> UniquePtr<gp_Dir>;
 
+        type TColgp_Array1OfPnt;
+        #[cxx_name = "construct_unique"]
+        pub fn TColgp_Array1OfPnt_new(
+            lower_bound: i32,
+            upper_bound: i32,
+        ) -> UniquePtr<TColgp_Array1OfPnt>;
+        pub fn Length(self: &TColgp_Array1OfPnt) -> i32;
+        pub fn TColgp_Array1OfPnt_Value(
+            array: &TColgp_Array1OfPnt,
+            index: i32,
+        ) -> UniquePtr<gp_Pnt>;
+        pub fn SetValue(self: Pin<&mut TColgp_Array1OfPnt>, index: i32, item: &gp_Pnt);
+
         type TColgp_Array1OfPnt2d;
         #[cxx_name = "construct_unique"]
         pub fn TColgp_Array1OfPnt2d_new(

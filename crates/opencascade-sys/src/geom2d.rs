@@ -7,6 +7,9 @@ mod inner {
 
         type gp_Ax2d = crate::gp::gp_Ax2d;
         type gp_Pnt2d = crate::gp::gp_Pnt2d;
+        type TColgp_Array1OfPnt2d = crate::t_col_gp::TColgp_Array1OfPnt2d;
+        type TColStd_Array1OfReal = crate::t_col_std::TColStd_Array1OfReal;
+        type TColStd_Array1OfInteger = crate::t_col_std::TColStd_Array1OfInteger;
 
         // Handles
         type Handle_Geom2d_Curve;
@@ -17,6 +20,9 @@ mod inner {
 
         type Handle_Geom2d_TrimmedCurve;
         pub fn IsNull(self: &Handle_Geom2d_TrimmedCurve) -> bool;
+
+        type Handle_Geom2d_BSplineCurve;
+        pub fn IsNull(self: &Handle_Geom2d_BSplineCurve) -> bool;
         // End Handles
 
         type Geom2d_Ellipse;
@@ -40,9 +46,22 @@ mod inner {
         pub fn HandleGeom2d_TrimmedCurve_to_curve(
             trimmed_curve: &Handle_Geom2d_TrimmedCurve,
         ) -> UniquePtr<Handle_Geom2d_Curve>;
+
+        pub fn Geom2d_BSplineCurve_new(
+            poles: &TColgp_Array1OfPnt2d,
+            knots: &TColStd_Array1OfReal,
+            multiplicities: &TColStd_Array1OfInteger,
+            degree: i32,
+        ) -> Result<UniquePtr<Handle_Geom2d_BSplineCurve>>;
+        pub fn Geom2d_BSplineCurve_Poles(
+            curve: &Handle_Geom2d_BSplineCurve,
+        ) -> &TColgp_Array1OfPnt2d;
+        pub fn Geom2d_BSplineCurve_Degree(curve: &Handle_Geom2d_BSplineCurve) -> i32;
+        pub fn Geom2d_BSplineCurve_IsPeriodic(curve: &Handle_Geom2d_BSplineCurve) -> bool;
     }
 
     impl UniquePtr<Handle_Geom2d_Ellipse> {}
     impl UniquePtr<Handle_Geom2d_Curve> {}
     impl UniquePtr<Handle_Geom2d_TrimmedCurve> {}
+    impl UniquePtr<Handle_Geom2d_BSplineCurve> {}
 }
