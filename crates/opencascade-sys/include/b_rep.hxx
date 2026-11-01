@@ -1,14 +1,19 @@
 #include <BRep_Builder.hxx>
 #include <BRep_Tool.hxx>
+#include <Geom2d_Curve.hxx>
 #include <Geom_Curve.hxx>
 #include <Geom_Surface.hxx>
+#include <Standard_Failure.hxx>
 #include <TopLoc_Location.hxx>
+#include <TopoDS.hxx>
 #include <TopoDS_Builder.hxx>
 #include <TopoDS_Edge.hxx>
 #include <TopoDS_Face.hxx>
 #include <TopoDS_Vertex.hxx>
 #include <bindings_common.hxx>
 #include <gp_Pnt.hxx>
+
+#include <stdexcept>
 
 inline const TopoDS_Builder &BRep_Builder_upcast_to_topods_builder(const BRep_Builder &builder) { return builder; }
 
@@ -45,4 +50,49 @@ inline std::unique_ptr<Handle_Poly_Triangulation> BRep_Tool_Triangulation(const 
                                                                           TopLoc_Location &location) {
   return std::unique_ptr<Handle_Poly_Triangulation>(
       new Handle_Poly_Triangulation(BRep_Tool::Triangulation(face, location)));
+}
+
+inline std::unique_ptr<Handle_Geom_Curve> BRep_Tool_Curve_Location(const TopoDS_Edge &edge,
+                                                                   TopLoc_Location &location,
+                                                                   Standard_Real &first,
+                                                                   Standard_Real &last) {
+  return std::unique_ptr<Handle_Geom_Curve>(
+      new Handle_Geom_Curve(BRep_Tool::Curve(edge, location, first, last)));
+}
+
+inline void BRep_Tool_CurveOnSurface(const TopoDS_Edge &edge,
+                                     Handle_Geom2d_Curve &curve,
+                                     Handle_Geom_Surface &surface,
+                                     TopLoc_Location &location,
+                                     Standard_Real &first,
+                                     Standard_Real &last) {
+  BRep_Tool::CurveOnSurface(edge, curve, surface, location, first, last);
+}
+
+inline double BRep_Tool_Tolerance(const TopoDS_Shape &shape) {
+  try {
+    switch (shape.ShapeType()) {
+      case TopAbs_VERTEX:
+        return BRep_Tool::Tolerance(TopoDS::Vertex(shape));
+      case TopAbs_EDGE:
+        return BRep_Tool::Tolerance(TopoDS::Edge(shape));
+      case TopAbs_FACE:
+        return BRep_Tool::Tolerance(TopoDS::Face(shape));
+      default:
+        throw std::runtime_error("BRep_Tool::Tolerance: shape has no tolerance");
+    }
+  } catch (const Standard_Failure &e) {
+    const char *msg = e.GetMessageString();
+    throw std::runtime_error(msg && *msg ? msg : "BRep_Tool::Tolerance failed");
+  }
+}
+
+inline void BRep_Builder_Transfert(const BRep_Builder &builder, const TopoDS_Edge &edge_in,
+                                   const TopoDS_Edge &edge_out) {
+  builder.Transfert(edge_in, edge_out);
+}
+
+inline void BRep_Builder_Range(const BRep_Builder &builder, const TopoDS_Edge &edge,
+                               const Standard_Real first, const Standard_Real last) {
+  builder.Range(edge, first, last);
 }

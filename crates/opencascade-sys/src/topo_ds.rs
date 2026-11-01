@@ -71,6 +71,18 @@ mod inner {
         #[cxx_name = "construct_unique"]
         pub fn TopoDS_Solid_to_owned(shape: &TopoDS_Solid) -> UniquePtr<TopoDS_Solid>;
 
+        type TopoDS_CompSolid;
+        #[cxx_name = "upcast_ref"]
+        pub fn cast_comp_solid_to_shape(comp_solid: &TopoDS_CompSolid) -> &TopoDS_Shape;
+        #[cxx_name = "construct_unique"]
+        pub fn TopoDS_CompSolid_new() -> UniquePtr<TopoDS_CompSolid>;
+        #[cxx_name = "construct_unique"]
+        pub fn TopoDS_CompSolid_to_owned(shape: &TopoDS_CompSolid) -> UniquePtr<TopoDS_CompSolid>;
+        #[cxx_name = "upcast"]
+        pub fn TopoDS_CompSolid_as_shape(
+            comp_solid: UniquePtr<TopoDS_CompSolid>,
+        ) -> UniquePtr<TopoDS_Shape>;
+
         type TopoDS_Shape;
         #[cxx_name = "construct_unique"]
         pub fn TopoDS_Shape_to_owned(shape: &TopoDS_Shape) -> UniquePtr<TopoDS_Shape>;
@@ -86,6 +98,19 @@ mod inner {
             translation: &TopLoc_Location,
             raise_exception: bool,
         );
+        /// Returns the shape local coordinate system.
+        pub fn Location(self: &TopoDS_Shape) -> &TopLoc_Location;
+        #[cxx_name = "Location"]
+        pub fn set_location(
+            self: Pin<&mut TopoDS_Shape>,
+            location: &TopLoc_Location,
+            raise_exception: bool,
+        );
+        #[cxx_name = "Orientation"]
+        pub fn set_orientation(
+            self: Pin<&mut TopoDS_Shape>,
+            orientation: TopAbs_Orientation,
+        );
         pub fn IsNull(self: &TopoDS_Shape) -> bool;
         pub fn IsEqual(self: &TopoDS_Shape, other: &TopoDS_Shape) -> bool;
         /// Same `TShape` and `Location`, orientation ignored.
@@ -96,12 +121,22 @@ mod inner {
         pub fn shape_complement(shape: &TopoDS_Shape) -> UniquePtr<TopoDS_Shape>;
         pub fn ShapeType(self: &TopoDS_Shape) -> TopAbs_ShapeEnum;
         pub fn Orientation(self: &TopoDS_Shape) -> TopAbs_Orientation;
+        /// A copy with this shape's orientation reversed.
+        pub fn Reversed(shape: &TopoDS_Shape) -> UniquePtr<TopoDS_Shape>;
+        pub fn Closed(self: &TopoDS_Shape) -> bool;
         /// `shape.TShape().get()` — identity pointer, for deterministic hashing.
         pub fn TopoDS_Shape_t_shape_ptr(shape: &TopoDS_Shape) -> usize;
 
         type TopoDS_Iterator;
         #[cxx_name = "construct_unique"]
         pub fn TopoDS_Iterator_new(shape: &TopoDS_Shape) -> UniquePtr<TopoDS_Iterator>;
+        /// `TopoDS_Iterator(shape, cumOri)` — cumulatively compose sub-shape
+        /// orientations with the shape's orientation.
+        #[cxx_name = "construct_unique"]
+        pub fn TopoDS_Iterator_new_cum_orientation(
+            shape: &TopoDS_Shape,
+            cum_ori: bool,
+        ) -> UniquePtr<TopoDS_Iterator>;
         pub fn More(self: &TopoDS_Iterator) -> bool;
         pub fn Next(self: Pin<&mut TopoDS_Iterator>);
         pub fn Value(self: &TopoDS_Iterator) -> &TopoDS_Shape;
@@ -121,6 +156,7 @@ mod inner {
         type TopoDS_Builder;
         pub fn MakeCompound(self: &TopoDS_Builder, compound: Pin<&mut TopoDS_Compound>);
         pub fn MakeShell(self: &TopoDS_Builder, compound: Pin<&mut TopoDS_Shell>);
+        pub fn MakeCompSolid(self: &TopoDS_Builder, comp_solid: Pin<&mut TopoDS_CompSolid>);
         pub fn Add(self: &TopoDS_Builder, shape: Pin<&mut TopoDS_Shape>, compound: &TopoDS_Shape);
 
         // This is dumb:
@@ -137,5 +173,6 @@ unsafe impl Send for inner::TopoDS_Wire {}
 unsafe impl Send for inner::TopoDS_Face {}
 unsafe impl Send for inner::TopoDS_Shell {}
 unsafe impl Send for inner::TopoDS_Solid {}
+unsafe impl Send for inner::TopoDS_CompSolid {}
 unsafe impl Send for inner::TopoDS_Compound {}
 unsafe impl Send for inner::TopoDS_Shape {}

@@ -50,6 +50,14 @@ mod inner {
         );
         pub fn TopExp_FirstVertex(edge: &TopoDS_Edge) -> UniquePtr<TopoDS_Vertex>;
         pub fn TopExp_LastVertex(edge: &TopoDS_Edge) -> UniquePtr<TopoDS_Vertex>;
+        pub fn TopExp_FirstVertex_Oriented(
+            edge: &TopoDS_Edge,
+            cum_ori: bool,
+        ) -> UniquePtr<TopoDS_Vertex>;
+        pub fn TopExp_LastVertex_Oriented(
+            edge: &TopoDS_Edge,
+            cum_ori: bool,
+        ) -> UniquePtr<TopoDS_Vertex>;
         #[Self = "TopExp"]
         pub fn CommonVertex(
             edge_1: &TopoDS_Edge,

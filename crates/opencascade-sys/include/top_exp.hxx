@@ -18,6 +18,16 @@ inline std::unique_ptr<TopoDS_Vertex> TopExp_LastVertex(const TopoDS_Edge &edge)
   return std::unique_ptr<TopoDS_Vertex>(new TopoDS_Vertex(TopExp::LastVertex(edge)));
 }
 
+inline std::unique_ptr<TopoDS_Vertex> TopExp_FirstVertex_Oriented(const TopoDS_Edge &edge,
+                                                                 const Standard_Boolean cum_ori) {
+  return std::unique_ptr<TopoDS_Vertex>(new TopoDS_Vertex(TopExp::FirstVertex(edge, cum_ori)));
+}
+
+inline std::unique_ptr<TopoDS_Vertex> TopExp_LastVertex_Oriented(const TopoDS_Edge &edge,
+                                                                const Standard_Boolean cum_ori) {
+  return std::unique_ptr<TopoDS_Vertex>(new TopoDS_Vertex(TopExp::LastVertex(edge, cum_ori)));
+}
+
 // `TopExp_Explorer(S, ToFind, ToAvoid)`: explore `ToFind` sub-shapes without
 // descending into `ToAvoid` ones (`TopAbs_SHAPE` avoids nothing).
 inline std::unique_ptr<TopExp_Explorer> TopExp_Explorer_new_avoid(const TopoDS_Shape &shape,

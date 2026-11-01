@@ -1,5 +1,11 @@
 #include <BRepTools.hxx>
+#include <BRepTools_ReShape.hxx>
+#include <BRepTools_WireExplorer.hxx>
 #include <BRep_Builder.hxx>
+#include <TopAbs_Orientation.hxx>
+#include <TopAbs_ShapeEnum.hxx>
+#include <TopoDS_Edge.hxx>
+#include <TopoDS_Shape.hxx>
 #include <TopoDS_Wire.hxx>
 #include <bindings_common.hxx>
 
@@ -42,4 +48,23 @@ inline std::unique_ptr<TopoDS_Shape> read_brep_bytes(rust::Slice<const uint8_t> 
   if (shape->IsNull())
     return nullptr;
   return shape;
+}
+
+// --- BRepTools_ReShape -----------------------------------------------------
+
+inline std::unique_ptr<TopoDS_Shape> BRepTools_ReShape_Value(const BRepTools_ReShape &reshape,
+                                                             const TopoDS_Shape &shape) {
+  return std::unique_ptr<TopoDS_Shape>(new TopoDS_Shape(reshape.Value(shape)));
+}
+
+inline Standard_Integer BRepTools_ReShape_Status(BRepTools_ReShape &reshape,
+                                                 const TopoDS_Shape &shape, TopoDS_Shape &new_shape,
+                                                 const Standard_Boolean last) {
+  return reshape.Status(shape, new_shape, last);
+}
+
+inline std::unique_ptr<TopoDS_Shape> BRepTools_ReShape_Apply(BRepTools_ReShape &reshape,
+                                                             const TopoDS_Shape &shape,
+                                                             const TopAbs_ShapeEnum until) {
+  return std::unique_ptr<TopoDS_Shape>(new TopoDS_Shape(reshape.Apply(shape, until)));
 }

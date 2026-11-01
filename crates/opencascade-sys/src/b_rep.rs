@@ -13,6 +13,7 @@ mod inner {
         type TopoDS_Vertex = crate::topo_ds::TopoDS_Vertex;
         type Handle_Geom_Surface = crate::geom::Handle_Geom_Surface;
         type Handle_Geom_Curve = crate::geom::Handle_Geom_Curve;
+        type Handle_Geom2d_Curve = crate::geom2d::Handle_Geom2d_Curve;
         type Handle_Poly_Triangulation = crate::poly::Handle_Poly_Triangulation;
         type TopLoc_Location = crate::top_loc::TopLoc_Location;
 
@@ -20,6 +21,17 @@ mod inner {
         #[cxx_name = "construct_unique"]
         pub fn BRep_Builder_new() -> UniquePtr<BRep_Builder>;
         pub fn BRep_Builder_upcast_to_topods_builder(builder: &BRep_Builder) -> &TopoDS_Builder;
+        pub fn BRep_Builder_Transfert(
+            builder: &BRep_Builder,
+            edge_in: &TopoDS_Edge,
+            edge_out: &TopoDS_Edge,
+        );
+        pub fn BRep_Builder_Range(
+            builder: &BRep_Builder,
+            edge: &TopoDS_Edge,
+            first: f64,
+            last: f64,
+        );
 
         type BRep_Tool;
         #[Self = "BRep_Tool"]
@@ -43,5 +55,22 @@ mod inner {
             face: &TopoDS_Face,
             location: Pin<&mut TopLoc_Location>,
         ) -> UniquePtr<Handle_Poly_Triangulation>;
+        pub fn BRep_Tool_Curve_Location(
+            edge: &TopoDS_Edge,
+            location: Pin<&mut TopLoc_Location>,
+            first: &mut f64,
+            last: &mut f64,
+        ) -> UniquePtr<Handle_Geom_Curve>;
+        pub fn BRep_Tool_CurveOnSurface(
+            edge: &TopoDS_Edge,
+            curve: Pin<&mut Handle_Geom2d_Curve>,
+            surface: Pin<&mut Handle_Geom_Surface>,
+            location: Pin<&mut TopLoc_Location>,
+            first: &mut f64,
+            last: &mut f64,
+        );
+        /// `BRep_Tool::Tolerance` for any of the tolerance-bearing shape types
+        /// (vertex, edge, face); raises for other types.
+        pub fn BRep_Tool_Tolerance(shape: &TopoDS_Shape) -> Result<f64>;
     }
 }
