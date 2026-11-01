@@ -7,6 +7,7 @@ mod inner {
 
         type gp_Ax3 = crate::gp::gp_Ax3;
         type gp_Pnt = crate::gp::gp_Pnt;
+        type gp_Pln = crate::gp::gp_Pln;
         type TColgp_Array2OfPnt = crate::t_col_gp::TColgp_Array2OfPnt;
         type TColgp_HArray1OfPnt = crate::t_col_gp::TColgp_HArray1OfPnt;
         type Handle_Standard_Type = crate::standard::Handle_Standard_Type;
@@ -34,6 +35,7 @@ mod inner {
 
         type Handle_Geom_Plane;
         pub fn IsNull(self: &Handle_Geom_Plane) -> bool;
+        pub fn Geom_Plane_new(plane: &gp_Pln) -> UniquePtr<Handle_Geom_Plane>;
 
         type Handle_Geom_CylindricalSurface;
         pub fn IsNull(self: &Handle_Geom_CylindricalSurface) -> bool;

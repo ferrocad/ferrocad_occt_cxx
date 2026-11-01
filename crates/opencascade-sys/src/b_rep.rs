@@ -7,6 +7,7 @@ mod inner {
 
         type TopoDS_Builder = crate::topo_ds::TopoDS_Builder;
         type gp_Pnt = crate::gp::gp_Pnt;
+        type TopoDS_Shape = crate::topo_ds::TopoDS_Shape;
         type TopoDS_Face = crate::topo_ds::TopoDS_Face;
         type TopoDS_Edge = crate::topo_ds::TopoDS_Edge;
         type TopoDS_Vertex = crate::topo_ds::TopoDS_Vertex;
@@ -21,6 +22,16 @@ mod inner {
         pub fn BRep_Builder_upcast_to_topods_builder(builder: &BRep_Builder) -> &TopoDS_Builder;
 
         type BRep_Tool;
+        #[Self = "BRep_Tool"]
+        pub fn Degenerated(edge: &TopoDS_Edge) -> bool;
+        #[Self = "BRep_Tool"]
+        pub fn Range(edge: &TopoDS_Edge, first: &mut f64, last: &mut f64);
+        pub fn BRep_Tool_IsClosed_shape(shape: &TopoDS_Shape) -> bool;
+        pub fn BRep_Tool_IsClosed_edge_face(edge: &TopoDS_Edge, face: &TopoDS_Face) -> bool;
+        pub fn BRep_Tool_Tolerance_vertex(vertex: &TopoDS_Vertex) -> f64;
+        pub fn BRep_Tool_Tolerance_edge(edge: &TopoDS_Edge) -> f64;
+        pub fn BRep_Tool_Tolerance_face(face: &TopoDS_Face) -> f64;
+        pub fn BRep_Tool_Parameter_edge(vertex: &TopoDS_Vertex, edge: &TopoDS_Edge) -> f64;
         pub fn BRep_Tool_Surface(face: &TopoDS_Face) -> UniquePtr<Handle_Geom_Surface>;
         pub fn BRep_Tool_Curve(
             edge: &TopoDS_Edge,

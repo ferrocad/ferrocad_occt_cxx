@@ -6,6 +6,7 @@
 #include <Geom_Surface.hxx>
 #include <Geom_TrimmedCurve.hxx>
 #include <bindings_common.hxx>
+#include <gp_Pln.hxx>
 
 inline std::unique_ptr<Handle_Geom_CylindricalSurface> Geom_CylindricalSurface_new(const gp_Ax3 &axis, double radius) {
   return std::unique_ptr<Handle_Geom_CylindricalSurface>(
@@ -36,6 +37,10 @@ inline std::unique_ptr<Handle_Geom_Plane>
 new_HandleGeomPlane_from_HandleGeomSurface(const Handle_Geom_Surface &surface) {
   Handle_Geom_Plane plane_handle = opencascade::handle<Geom_Plane>::DownCast(surface);
   return std::unique_ptr<Handle_Geom_Plane>(new Handle_Geom_Plane(plane_handle));
+}
+
+inline std::unique_ptr<Handle_Geom_Plane> Geom_Plane_new(const gp_Pln &plane) {
+  return std::unique_ptr<Handle_Geom_Plane>(new Handle_Geom_Plane(new Geom_Plane(plane)));
 }
 
 inline std::unique_ptr<gp_Pnt> HandleGeomCurve_Value(const Handle_Geom_Curve &curve, const Standard_Real U) {

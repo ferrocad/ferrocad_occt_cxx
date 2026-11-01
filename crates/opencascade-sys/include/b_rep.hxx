@@ -12,6 +12,22 @@
 
 inline const TopoDS_Builder &BRep_Builder_upcast_to_topods_builder(const BRep_Builder &builder) { return builder; }
 
+inline bool BRep_Tool_IsClosed_shape(const TopoDS_Shape &s) { return BRep_Tool::IsClosed(s); }
+
+inline bool BRep_Tool_IsClosed_edge_face(const TopoDS_Edge &e, const TopoDS_Face &f) {
+  return BRep_Tool::IsClosed(e, f);
+}
+
+inline double BRep_Tool_Tolerance_vertex(const TopoDS_Vertex &v) { return BRep_Tool::Tolerance(v); }
+
+inline double BRep_Tool_Tolerance_edge(const TopoDS_Edge &e) { return BRep_Tool::Tolerance(e); }
+
+inline double BRep_Tool_Tolerance_face(const TopoDS_Face &f) { return BRep_Tool::Tolerance(f); }
+
+inline double BRep_Tool_Parameter_edge(const TopoDS_Vertex &v, const TopoDS_Edge &e) {
+  return BRep_Tool::Parameter(v, e);
+}
+
 inline std::unique_ptr<Handle_Geom_Surface> BRep_Tool_Surface(const TopoDS_Face &face) {
   return std::unique_ptr<Handle_Geom_Surface>(new Handle_Geom_Surface(BRep_Tool::Surface(face)));
 }

@@ -10,6 +10,14 @@ mod inner {
         type TopoDS_Wire = crate::topo_ds::TopoDS_Wire;
 
         type BRepTools;
+        #[Self = "BRepTools"]
+        pub fn UVBounds(
+            face: &TopoDS_Face,
+            u0: &mut f64,
+            u1: &mut f64,
+            v0: &mut f64,
+            v1: &mut f64,
+        );
 
         fn outer_wire(face: &TopoDS_Face) -> UniquePtr<TopoDS_Wire>;
 

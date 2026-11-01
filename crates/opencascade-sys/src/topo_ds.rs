@@ -96,6 +96,8 @@ mod inner {
         pub fn shape_complement(shape: &TopoDS_Shape) -> UniquePtr<TopoDS_Shape>;
         pub fn ShapeType(self: &TopoDS_Shape) -> TopAbs_ShapeEnum;
         pub fn Orientation(self: &TopoDS_Shape) -> TopAbs_Orientation;
+        /// `shape.TShape().get()` — identity pointer, for deterministic hashing.
+        pub fn TopoDS_Shape_t_shape_ptr(shape: &TopoDS_Shape) -> usize;
 
         type TopoDS_Iterator;
         #[cxx_name = "construct_unique"]
