@@ -150,8 +150,11 @@ docker run --rm -v "$PWD":/work -w /work \
   cargo check -p ferrocad_occt_cxx --target wasm32-unknown-unknown
 ```
 
-The tarball is headless and omits IGES, STL, BRepFeat and OCAF, so code that uses
-those bindings will not link on wasm yet.
+The tarball is headless and omits IGES, STL, BRepFeat and OCAF. Unused bindings
+are dropped by `--gc-sections`, so a normal geometry path links (the
+`ferrocad_occt_wasm` smoke crate builds a box, fillets an edge and tessellates it,
+and returns 40 triangles when run under Node/WASI); calling those specific
+bindings fails at link time.
 
 ## Code Formatting
 
