@@ -134,6 +134,25 @@ A host supplies the OCCT-backed imports and runs the module. This fork does not
 ship one (upstream's `viewer` was removed); FerroCAD or any other app can be that
 host by implementing the WIT interface.
 
+### The kernel itself in wasm
+
+The bindings can also target `wasm32-unknown-unknown` against a prebuilt OCCT. Set
+`OCCT_WASM_ROOT` to the extracted
+[`occt-8_0_1_rev3-wasm32_unknown_unknown`](https://github.com/lzpel/cadrum/releases/download/occt-8_0_1_rev3/occt-8_0_1_rev3-wasm32_unknown_unknown.tar.gz)
+tarball and build inside
+`ghcr.io/lzpel/cross-wasm32-unknown-unknown`, which carries the wasi-sdk toolchain
+whose wasm-EH encoding matches it:
+
+```sh
+docker run --rm -v "$PWD":/work -w /work \
+  -e OCCT_WASM_ROOT=/work/.occt-wasm/occt-8_0_1_rev3-wasm32_unknown_unknown \
+  ghcr.io/lzpel/cross-wasm32-unknown-unknown \
+  cargo check -p ferrocad_occt_cxx --target wasm32-unknown-unknown
+```
+
+The tarball is headless and omits IGES, STL, BRepFeat and OCAF, so code that uses
+those bindings will not link on wasm yet.
+
 ## Code Formatting
 
 ### Rust Code
