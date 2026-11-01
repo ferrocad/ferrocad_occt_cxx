@@ -2,11 +2,21 @@ pub use inner::*;
 
 #[cxx::bridge]
 mod inner {
+    #[repr(u32)]
+    #[derive(Debug)]
+    pub enum BRepBuilderAPI_WireError {
+        BRepBuilderAPI_WireDone,
+        BRepBuilderAPI_EmptyWire,
+        BRepBuilderAPI_DisconnectedWire,
+        BRepBuilderAPI_NonManifoldWire,
+    }
+
     unsafe extern "C++" {
         include!("opencascade-sys/include/b_rep_builder_api.hxx");
 
         type gp_Pnt = crate::gp::gp_Pnt;
         type gp_Circ = crate::gp::gp_Circ;
+        type gp_Pln = crate::gp::gp_Pln;
         type gp_Trsf = crate::gp::gp_Trsf;
         type gp_GTrsf = crate::gp::gp_GTrsf;
         type Message_ProgressRange = crate::message::Message_ProgressRange;
@@ -20,6 +30,8 @@ mod inner {
         type Handle_Geom_Surface = crate::geom::Handle_Geom_Surface;
         type Handle_Geom2d_Curve = crate::geom2d::Handle_Geom2d_Curve;
         type Handle_Poly_Triangulation = crate::poly::Handle_Poly_Triangulation;
+
+        type BRepBuilderAPI_WireError;
 
         type BRepBuilderAPI_MakeVertex;
         #[cxx_name = "construct_unique"]
@@ -47,6 +59,17 @@ mod inner {
             curve_handle: &Handle_Geom2d_Curve,
             surface_handle: &Handle_Geom_Surface,
         ) -> UniquePtr<BRepBuilderAPI_MakeEdge>;
+        pub fn BRepBuilderAPI_MakeEdge_CurveRange(
+            curve: &Handle_Geom_Curve,
+            first: f64,
+            last: f64,
+        ) -> Result<UniquePtr<BRepBuilderAPI_MakeEdge>>;
+        pub fn BRepBuilderAPI_MakeEdge_CurveSurface2dRange(
+            curve: &Handle_Geom2d_Curve,
+            surface: &Handle_Geom_Surface,
+            first: f64,
+            last: f64,
+        ) -> Result<UniquePtr<BRepBuilderAPI_MakeEdge>>;
         pub fn Vertex1(self: &BRepBuilderAPI_MakeEdge) -> &TopoDS_Vertex;
         pub fn Edge(self: Pin<&mut BRepBuilderAPI_MakeEdge>) -> &TopoDS_Edge;
         pub fn Build(self: Pin<&mut BRepBuilderAPI_MakeEdge>, progress: &Message_ProgressRange);
@@ -74,6 +97,7 @@ mod inner {
         pub fn Wire(self: Pin<&mut BRepBuilderAPI_MakeWire>) -> &TopoDS_Wire;
         pub fn Build(self: Pin<&mut BRepBuilderAPI_MakeWire>, progress: &Message_ProgressRange);
         pub fn IsDone(self: &BRepBuilderAPI_MakeWire) -> bool;
+        pub fn Error(self: &BRepBuilderAPI_MakeWire) -> BRepBuilderAPI_WireError;
 
         type BRepBuilderAPI_MakeFace;
         #[cxx_name = "construct_unique"]
@@ -86,6 +110,26 @@ mod inner {
             surface: &Handle_Geom_Surface,
             edge_tolerance: f64,
         ) -> UniquePtr<BRepBuilderAPI_MakeFace>;
+        pub fn BRepBuilderAPI_MakeFace_Plane(
+            plane: &gp_Pln,
+            u1: f64,
+            u2: f64,
+            v1: f64,
+            v2: f64,
+        ) -> Result<UniquePtr<BRepBuilderAPI_MakeFace>>;
+        pub fn BRepBuilderAPI_MakeFace_surface_wire(
+            surface: &Handle_Geom_Surface,
+            wire: &TopoDS_Wire,
+            inside: bool,
+        ) -> Result<UniquePtr<BRepBuilderAPI_MakeFace>>;
+        pub fn BRepBuilderAPI_MakeFace_surface_range(
+            surface: &Handle_Geom_Surface,
+            u1: f64,
+            u2: f64,
+            v1: f64,
+            v2: f64,
+            tol: f64,
+        ) -> Result<UniquePtr<BRepBuilderAPI_MakeFace>>;
         pub fn Face(self: &BRepBuilderAPI_MakeFace) -> &TopoDS_Face;
         pub fn Shape(self: Pin<&mut BRepBuilderAPI_MakeFace>) -> &TopoDS_Shape;
         pub fn Build(self: Pin<&mut BRepBuilderAPI_MakeFace>, progress: &Message_ProgressRange);
@@ -135,6 +179,28 @@ mod inner {
         pub fn Shape(self: Pin<&mut BRepBuilderAPI_GTransform>) -> &TopoDS_Shape;
         pub fn Build(self: Pin<&mut BRepBuilderAPI_GTransform>, progress: &Message_ProgressRange);
         pub fn IsDone(self: &BRepBuilderAPI_GTransform) -> bool;
+
+        type BRepBuilderAPI_Copy;
+        #[cxx_name = "construct_unique"]
+        pub fn BRepBuilderAPI_Copy_new(
+            shape: &TopoDS_Shape,
+            copy_geom: bool,
+            copy_mesh: bool,
+        ) -> UniquePtr<BRepBuilderAPI_Copy>;
+        pub fn Shape(self: Pin<&mut BRepBuilderAPI_Copy>) -> &TopoDS_Shape;
+        pub fn IsDone(self: &BRepBuilderAPI_Copy) -> bool;
+
+        type BRepBuilderAPI_Sewing;
+        pub fn BRepBuilderAPI_Sewing_new(tolerance: f64) -> UniquePtr<BRepBuilderAPI_Sewing>;
+        pub fn Load(self: Pin<&mut BRepBuilderAPI_Sewing>, shape: &TopoDS_Shape);
+        pub fn BRepBuilderAPI_Sewing_Perform(sewing: Pin<&mut BRepBuilderAPI_Sewing>) -> Result<()>;
+        pub fn SewedShape(self: &BRepBuilderAPI_Sewing) -> &TopoDS_Shape;
+
+        type BRepBuilderAPI_NurbsConvert;
+        pub fn BRepBuilderAPI_NurbsConvert_new(
+            shape: &TopoDS_Shape,
+        ) -> UniquePtr<BRepBuilderAPI_NurbsConvert>;
+        pub fn Shape(self: Pin<&mut BRepBuilderAPI_NurbsConvert>) -> &TopoDS_Shape;
     }
 }
 

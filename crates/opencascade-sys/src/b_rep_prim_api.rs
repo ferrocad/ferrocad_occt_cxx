@@ -43,6 +43,12 @@ mod inner {
             radius: f64,
             height: f64,
         ) -> UniquePtr<BRepPrimAPI_MakeCylinder>;
+        pub fn BRepPrimAPI_MakeCylinder_angle(
+            coord_system: &gp_Ax2,
+            radius: f64,
+            height: f64,
+            angle: f64,
+        ) -> Result<UniquePtr<BRepPrimAPI_MakeCylinder>>;
         pub fn Shape(self: Pin<&mut BRepPrimAPI_MakeCylinder>) -> &TopoDS_Shape;
         pub fn Build(self: Pin<&mut BRepPrimAPI_MakeCylinder>, progress: &Message_ProgressRange);
         pub fn IsDone(self: &BRepPrimAPI_MakeCylinder) -> bool;
@@ -66,6 +72,13 @@ mod inner {
             r: f64,
             angle_1: f64,
         ) -> UniquePtr<BRepPrimAPI_MakeSphere>;
+        pub fn BRepPrimAPI_MakeSphere_full(
+            axis: &gp_Ax2,
+            r: f64,
+            angle1: f64,
+            angle2: f64,
+            angle3: f64,
+        ) -> Result<UniquePtr<BRepPrimAPI_MakeSphere>>;
         pub fn Shape(self: Pin<&mut BRepPrimAPI_MakeSphere>) -> &TopoDS_Shape;
         pub fn Build(self: Pin<&mut BRepPrimAPI_MakeSphere>, progress: &Message_ProgressRange);
         pub fn IsDone(self: &BRepPrimAPI_MakeSphere) -> bool;
