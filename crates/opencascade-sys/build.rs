@@ -1,7 +1,14 @@
 /// Minimum compatible version of OpenCASCADE library (major, minor)
 ///
-/// Pre-installed OpenCASCADE library will be checked for compatibility using semver rules.
+/// Pre-installed OpenCASCADE library will be checked for compatibility using
+/// these bounds: OCCT 7.8 and later 7.x releases are supported, as is every
+/// 8.x release. Anything older (6.x) or newer (9.x and up) is rejected.
 const OCCT_VERSION: (u8, u8) = (7, 8);
+
+/// Highest OpenCASCADE major version this crate is prepared for. The C++
+/// bridge is built as C++17 and `include/occt8_handle_compat.hxx` restores the
+/// `Handle_*` names OCCT 8 removed from the class headers.
+const OCCT_MAX_MAJOR: u8 = 8;
 
 /// The list of used OpenCASCADE libraries which needs to be linked with.
 const OCCT_LIBS: &[&str] = &[
@@ -30,6 +37,17 @@ const OCCT_LIBS: &[&str] = &[
     "TKLCAF",
     "TKXCAF",
 ];
+
+/// Whether the detected OCCT `major`.`minor` is inside the supported range:
+/// `OCCT_VERSION.0` from `OCCT_VERSION.1` upwards, or any `OCCT_MAX_MAJOR` release.
+fn is_supported_occt_version(major: u8, minor: u8) -> bool {
+    // 7.8 and later 7.x releases.
+    if major == OCCT_VERSION.0 {
+        minor >= OCCT_VERSION.1
+    } else {
+        major == OCCT_MAX_MAJOR
+    }
+}
 
 fn main() {
     // The package is `ferrocad_occt_cxx`, but every bridge source and the
@@ -126,6 +144,11 @@ fn main() {
         "src/topo_ds.rs",
     ];
 
+    // The bridge headers and the OCCT-8 compatibility shim are build inputs too.
+    // Without this, a header-only edit is invisible to cargo and links against
+    // stale objects (the bridge loop below only tracks the `.rs` files).
+    println!("cargo:rerun-if-changed=include");
+
     let mut build = cxx_build::bridges(rust_bridges);
 
     if is_windows_gnu {
@@ -139,7 +162,10 @@ fn main() {
 
     build
         .cpp(true)
-        .flag_if_supported("-std=c++11")
+        // OCCT 8 requires C++17 (`BUILD_CPP_STANDARD` defaults to C++17 with
+        // `CMAKE_CXX_STANDARD_REQUIRED ON`) and its headers use `inline constexpr`.
+        // `cc::Build::std` emits `/std:c++17` on MSVC instead of a raw `-std=` flag.
+        .std("c++17")
         .define("_USE_MATH_DEFINES", "TRUE")
         .include(occt_config.include_dir)
         .include("include")
@@ -162,6 +188,12 @@ impl OcctConfig {
     /// Find OpenCASCADE library using cmake
     fn detect() -> Self {
         println!("cargo:rerun-if-env-changed=DEP_OCCT_ROOT");
+        // A different OCCT prefix must rebuild the bridge objects. Without these,
+        // cargo treats the crate as fresh and silently reuses objects compiled
+        // against another OCCT version.
+        for var in ["OpenCASCADE_DIR", "OCCT_INCLUDE_DIR", "CASROOT", "OCCT_ROOT"] {
+            println!("cargo:rerun-if-env-changed={var}");
+        }
 
         // Add path to builtin OCCT
         #[cfg(feature = "builtin")]
@@ -204,14 +236,14 @@ impl OcctConfig {
         if let (Some(version_major), Some(version_minor), Some(include_dir), Some(library_dir)) =
             (version_major, version_minor, include_dir, library_dir)
         {
-            if version_major != OCCT_VERSION.0 || version_minor < OCCT_VERSION.1 {
+            if !is_supported_occt_version(version_major, version_minor) {
                 #[cfg(feature = "builtin")]
-                panic!("Builtin OpenCASCADE library found but version is not met (found {}.{} but {}.{} required). Please fix OCCT_VERSION in build script of `opencascade-sys` crate or submodule OCCT in `occt-sys` crate.",
-                       version_major, version_minor, OCCT_VERSION.0, OCCT_VERSION.1);
+                panic!("Builtin OpenCASCADE library found but version is not met (found {}.{} but {}.{}+ or {}.x required). Please fix OCCT_VERSION in build script of `opencascade-sys` crate or submodule OCCT in `occt-sys` crate.",
+                       version_major, version_minor, OCCT_VERSION.0, OCCT_VERSION.1, OCCT_MAX_MAJOR);
 
                 #[cfg(not(feature = "builtin"))]
-                panic!("Pre-installed OpenCASCADE library found but version is not met (found {}.{} but {}.{} required). Please provide required version or use `builtin` feature.",
-                       version_major, version_minor, OCCT_VERSION.0, OCCT_VERSION.1);
+                panic!("Pre-installed OpenCASCADE library found but version is not met (found {}.{} but {}.{}+ or {}.x required). Please provide required version or use `builtin` feature.",
+                       version_major, version_minor, OCCT_VERSION.0, OCCT_VERSION.1, OCCT_MAX_MAJOR);
             }
 
             Self { include_dir, library_dir, is_dynamic }

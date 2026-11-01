@@ -10,20 +10,23 @@ mod inner {
         type TopAbs_Orientation = crate::top_abs::TopAbs_Orientation;
         type TopTools_ListOfShape = crate::top_tools::TopTools_ListOfShape;
 
-        type TopoDS;
-        #[Self = "TopoDS"]
+        // OCCT 8 turned `class TopoDS` into `namespace TopoDS`, so cxx can no
+        // longer take a member pointer. These are free wrappers in topo_ds.hxx;
+        // the `TopoDS` module below keeps the upstream `TopoDS::Vertex(..)`
+        // spelling at the call sites.
+        #[cxx_name = "topods_vertex"]
         pub fn Vertex(shape: &TopoDS_Shape) -> &TopoDS_Vertex;
-        #[Self = "TopoDS"]
+        #[cxx_name = "topods_edge"]
         pub fn Edge(shape: &TopoDS_Shape) -> &TopoDS_Edge;
-        #[Self = "TopoDS"]
+        #[cxx_name = "topods_wire"]
         pub fn Wire(shape: &TopoDS_Shape) -> &TopoDS_Wire;
-        #[Self = "TopoDS"]
+        #[cxx_name = "topods_face"]
         pub fn Face(shape: &TopoDS_Shape) -> &TopoDS_Face;
-        #[Self = "TopoDS"]
+        #[cxx_name = "topods_shell"]
         pub fn Shell(shape: &TopoDS_Shape) -> &TopoDS_Shell;
-        #[Self = "TopoDS"]
+        #[cxx_name = "topods_solid"]
         pub fn Solid(shape: &TopoDS_Shape) -> &TopoDS_Solid;
-        #[Self = "TopoDS"]
+        #[cxx_name = "topods_compound"]
         pub fn Compound(shape: &TopoDS_Shape) -> &TopoDS_Compound;
 
         type TopoDS_Vertex;
@@ -187,3 +190,11 @@ unsafe impl Send for inner::TopoDS_Solid {}
 unsafe impl Send for inner::TopoDS_CompSolid {}
 unsafe impl Send for inner::TopoDS_Compound {}
 unsafe impl Send for inner::TopoDS_Shape {}
+
+/// OCCT 8 spells the casts as `namespace TopoDS` rather than a class, and the
+/// bridge therefore binds them as free functions. This module preserves the
+/// upstream `TopoDS::Vertex(shape)` call spelling for every caller.
+#[allow(non_snake_case)]
+pub mod TopoDS {
+    pub use super::{Compound, Edge, Face, Shell, Solid, Vertex, Wire};
+}

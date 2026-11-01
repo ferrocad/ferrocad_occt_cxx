@@ -21,9 +21,11 @@ mod inner {
             self: Pin<&mut TopTools_ListOfShape>,
             face: &TopoDS_Shape,
         ) -> Pin<&mut TopoDS_Shape>;
-        pub fn Size(self: &TopTools_ListOfShape) -> i32;
         pub fn Extent(self: &TopTools_ListOfShape) -> i32;
         pub fn IsEmpty(self: &TopTools_ListOfShape) -> bool;
+        // Not a method: OCCT 8 returns `size_t` from `Size()`, so this is a
+        // free wrapper with one signature on 7.8 and 8.x (see top_tools.hxx).
+        pub fn list_size(list: &TopTools_ListOfShape) -> i32;
         pub fn list_clear(list: Pin<&mut TopTools_ListOfShape>);
 
         type TopTools_ListIteratorOfListOfShape;

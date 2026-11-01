@@ -3,6 +3,10 @@
 #include <NCollection_List.hxx>
 #include <memory>
 
+// Re-creates the `Handle_Class` names OCCT 8 dropped (no-op on OCCT 7.x).
+// Every bridge header includes this file, so this is the single include point.
+#include <occt8_handle_compat.hxx>
+
 // Generic template constructor
 template <typename T, typename... Args> std::unique_ptr<T> construct_unique(Args... args) {
   return std::unique_ptr<T>(new T(args...));
