@@ -24,9 +24,13 @@ fn main() {
         "include/gtransform.hxx",
         "include/chfi2d.hxx",
         "include/shapefix.hxx",
+        "include/history.hxx",
+        "include/topology.hxx",
         "src/lib.rs",
         "src/chfi2d.rs",
         "src/shapefix.rs",
+        "src/history.rs",
+        "src/topology.rs",
     ] {
         println!("cargo:rerun-if-changed={file}");
     }
@@ -38,7 +42,13 @@ fn main() {
         )
     });
 
-    cxx_build::bridges(["src/lib.rs", "src/chfi2d.rs", "src/shapefix.rs"])
+    cxx_build::bridges([
+        "src/lib.rs",
+        "src/chfi2d.rs",
+        "src/shapefix.rs",
+        "src/history.rs",
+        "src/topology.rs",
+    ])
         .include(&include)
         .std("c++14")
         .compile("ferrocad-part-cxx");

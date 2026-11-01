@@ -11,7 +11,9 @@
 //! carrying FerroCAD-specific behaviour.
 
 pub mod chfi2d;
+pub mod history;
 pub mod shapefix;
+pub mod topology;
 
 #[cxx::bridge]
 mod ffi {
