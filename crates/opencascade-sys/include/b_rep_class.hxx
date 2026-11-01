@@ -47,3 +47,14 @@ inline TopAbs_State BRepClass_FaceClassifier_State(const TopoDS_Face &face, doub
     return TopAbs_UNKNOWN;
   }
 }
+
+inline TopAbs_State BRepClass_FaceClassifier_State_point(const TopoDS_Face &face, double x, double y,
+                                                         double z, double tol) {
+  try {
+    BRepClass_FaceClassifier classifier(face, gp_Pnt(x, y, z), tol);
+    return classifier.State();
+  } catch (const Standard_Failure &e) {
+    b_rep_class_rethrow(e);
+    return TopAbs_UNKNOWN;
+  }
+}

@@ -4,8 +4,12 @@
 #include <GeomAdaptor_Curve.hxx>
 #include <Standard_Failure.hxx>
 #include <bindings_common.hxx>
+#include <gp_Cone.hxx>
+#include <gp_Cylinder.hxx>
 #include <gp_Pln.hxx>
 #include <gp_Pnt.hxx>
+#include <gp_Sphere.hxx>
+#include <gp_Torus.hxx>
 #include <gp_Vec.hxx>
 
 #include <stdexcept>
@@ -36,6 +40,46 @@ inline void b_rep_adaptor_rethrow(const Standard_Failure &e) {
 inline std::unique_ptr<gp_Pln> BRepAdaptor_Surface_Plane(const BRepAdaptor_Surface &surface) {
   try {
     return std::unique_ptr<gp_Pln>(new gp_Pln(surface.Plane()));
+  } catch (const Standard_Failure &e) {
+    b_rep_adaptor_rethrow(e);
+    return nullptr;
+  }
+}
+
+inline GeomAbs_SurfaceType BRepAdaptor_Surface_GetType(const BRepAdaptor_Surface &surface) {
+  return surface.GetType();
+}
+
+inline std::unique_ptr<gp_Cylinder> BRepAdaptor_Surface_Cylinder(const BRepAdaptor_Surface &surface) {
+  try {
+    return std::unique_ptr<gp_Cylinder>(new gp_Cylinder(surface.Cylinder()));
+  } catch (const Standard_Failure &e) {
+    b_rep_adaptor_rethrow(e);
+    return nullptr;
+  }
+}
+
+inline std::unique_ptr<gp_Sphere> BRepAdaptor_Surface_Sphere(const BRepAdaptor_Surface &surface) {
+  try {
+    return std::unique_ptr<gp_Sphere>(new gp_Sphere(surface.Sphere()));
+  } catch (const Standard_Failure &e) {
+    b_rep_adaptor_rethrow(e);
+    return nullptr;
+  }
+}
+
+inline std::unique_ptr<gp_Cone> BRepAdaptor_Surface_Cone(const BRepAdaptor_Surface &surface) {
+  try {
+    return std::unique_ptr<gp_Cone>(new gp_Cone(surface.Cone()));
+  } catch (const Standard_Failure &e) {
+    b_rep_adaptor_rethrow(e);
+    return nullptr;
+  }
+}
+
+inline std::unique_ptr<gp_Torus> BRepAdaptor_Surface_Torus(const BRepAdaptor_Surface &surface) {
+  try {
+    return std::unique_ptr<gp_Torus>(new gp_Torus(surface.Torus()));
   } catch (const Standard_Failure &e) {
     b_rep_adaptor_rethrow(e);
     return nullptr;

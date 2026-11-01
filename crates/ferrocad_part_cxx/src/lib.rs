@@ -10,11 +10,10 @@
 //! be donated to `opencascade-sys` (or merged into a sibling crate) without
 //! carrying FerroCAD-specific behaviour.
 //!
-//! `ops` and `surface_ops` are the exception, and explicitly staged: they were
-//! moved out of `ferrocad_occt` so that crate could drop C++ entirely, and some
-//! of their entries still mirror a FreeCAD `TopoShape` method or carry flat
-//! `Vec<f64>` payloads. Splitting those is tracked in ferrocad/ferrocad#2.
+//! `ops` is the staged exception: it was moved out of `ferrocad_occt` so that
+//! crate could drop C++ entirely, and some of its remaining entries still mirror
+//! a FreeCAD `TopoShape` method or carry flat `Vec<f64>` payloads. Splitting
+//! those is tracked in ferrocad/ferrocad#2.
 
 pub mod ops;
 pub mod shapefix;
-pub mod surface_ops;

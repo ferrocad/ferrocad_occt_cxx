@@ -97,6 +97,9 @@ mod inner {
         pub fn cylinder_to_surface(
             cylinder_handle: &Handle_Geom_CylindricalSurface,
         ) -> UniquePtr<Handle_Geom_Surface>;
+        pub fn conical_to_surface(
+            conical_handle: &Handle_Geom_ConicalSurface,
+        ) -> UniquePtr<Handle_Geom_Surface>;
 
         type Geom_BezierSurface;
         pub fn Geom_BezierSurface_new(

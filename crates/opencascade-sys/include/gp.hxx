@@ -1,8 +1,11 @@
 #include <bindings_common.hxx>
 #include <gp.hxx>
+#include <gp_Ax1.hxx>
 #include <gp_Ax2.hxx>
 #include <gp_Ax3.hxx>
 #include <gp_Circ.hxx>
+#include <gp_Cone.hxx>
+#include <gp_Cylinder.hxx>
 #include <gp_Dir.hxx>
 #include <gp_Elips.hxx>
 #include <gp_GTrsf.hxx>
@@ -12,6 +15,8 @@
 #include <gp_Parab.hxx>
 #include <gp_Pln.hxx>
 #include <gp_Pnt.hxx>
+#include <gp_Sphere.hxx>
+#include <gp_Torus.hxx>
 #include <gp_Trsf.hxx>
 #include <gp_Vec.hxx>
 #include <Standard_Failure.hxx>
@@ -105,4 +110,53 @@ inline void gp_Trsf_SetValues(gp_Trsf &transform, double a11, double a12, double
   } catch (const Standard_Failure &e) {
     gp_rethrow(e);
   }
+}
+
+inline std::unique_ptr<gp_Cylinder> gp_Cylinder_new(const gp_Ax3 &axis, double radius) {
+  try {
+    return std::unique_ptr<gp_Cylinder>(new gp_Cylinder(axis, radius));
+  } catch (const Standard_Failure &e) {
+    gp_rethrow(e);
+    return nullptr;
+  }
+}
+
+inline std::unique_ptr<gp_Sphere> gp_Sphere_new(const gp_Ax3 &axis, double radius) {
+  try {
+    return std::unique_ptr<gp_Sphere>(new gp_Sphere(axis, radius));
+  } catch (const Standard_Failure &e) {
+    gp_rethrow(e);
+    return nullptr;
+  }
+}
+
+inline std::unique_ptr<gp_Cone> gp_Cone_new(const gp_Ax3 &axis, double semi_angle, double radius) {
+  try {
+    return std::unique_ptr<gp_Cone>(new gp_Cone(axis, semi_angle, radius));
+  } catch (const Standard_Failure &e) {
+    gp_rethrow(e);
+    return nullptr;
+  }
+}
+
+inline std::unique_ptr<gp_Torus> gp_Torus_new(const gp_Ax3 &axis, double major_radius,
+                                              double minor_radius) {
+  try {
+    return std::unique_ptr<gp_Torus>(new gp_Torus(axis, major_radius, minor_radius));
+  } catch (const Standard_Failure &e) {
+    gp_rethrow(e);
+    return nullptr;
+  }
+}
+
+inline std::unique_ptr<gp_Ax1> gp_Pln_Axis(const gp_Pln &plane) {
+  return std::unique_ptr<gp_Ax1>(new gp_Ax1(plane.Axis()));
+}
+
+inline std::unique_ptr<gp_Dir> gp_Ax1_Direction(const gp_Ax1 &axis) {
+  return std::unique_ptr<gp_Dir>(new gp_Dir(axis.Direction()));
+}
+
+inline std::unique_ptr<gp_Dir> gp_Dir_Reversed(const gp_Dir &dir) {
+  return std::unique_ptr<gp_Dir>(new gp_Dir(dir.Reversed()));
 }

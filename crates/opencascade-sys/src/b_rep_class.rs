@@ -37,5 +37,13 @@ mod inner {
             v: f64,
             tol: f64,
         ) -> Result<TopAbs_State>;
+
+        pub fn BRepClass_FaceClassifier_State_point(
+            face: &TopoDS_Face,
+            x: f64,
+            y: f64,
+            z: f64,
+            tol: f64,
+        ) -> Result<TopAbs_State>;
     }
 }

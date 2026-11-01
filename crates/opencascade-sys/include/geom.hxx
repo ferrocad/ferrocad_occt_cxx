@@ -564,6 +564,10 @@ inline std::unique_ptr<Handle_Geom_Surface> cylinder_to_surface(const Handle_Geo
   return std::unique_ptr<Handle_Geom_Surface>(new Handle_Geom_Surface(cylinder_handle));
 }
 
+inline std::unique_ptr<Handle_Geom_Surface> conical_to_surface(const Handle_Geom_ConicalSurface &conical_handle) {
+  return std::unique_ptr<Handle_Geom_Surface>(new Handle_Geom_Surface(conical_handle));
+}
+
 inline std::unique_ptr<Handle_Geom_BezierSurface> Geom_BezierSurface_new(const TColgp_Array2OfPnt &poles) {
   return std::unique_ptr<Handle_Geom_BezierSurface>(
       new Handle_Geom_BezierSurface(new Geom_BezierSurface(poles)));

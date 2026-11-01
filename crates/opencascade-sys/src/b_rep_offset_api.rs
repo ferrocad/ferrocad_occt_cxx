@@ -35,6 +35,8 @@ mod inner {
 
         type BRepOffsetAPI_MakeOffset;
         #[cxx_name = "construct_unique"]
+        pub fn BRepOffsetAPI_MakeOffset_new() -> UniquePtr<BRepOffsetAPI_MakeOffset>;
+        #[cxx_name = "construct_unique"]
         pub fn BRepOffsetAPI_MakeOffset_face_new(
             face: &TopoDS_Face,
             join: GeomAbs_JoinType,
@@ -100,6 +102,7 @@ mod inner {
             with_contact: bool,
             with_correction: bool,
         );
+        pub fn IsReady(self: &BRepOffsetAPI_MakePipeShell) -> bool;
         pub fn BRepOffsetAPI_MakePipeShell_SetLaw(
             shell: Pin<&mut BRepOffsetAPI_MakePipeShell>,
             profile: &TopoDS_Shape,

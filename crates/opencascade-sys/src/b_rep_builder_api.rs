@@ -26,6 +26,7 @@ mod inner {
         type TopoDS_Wire = crate::topo_ds::TopoDS_Wire;
         type TopoDS_Face = crate::topo_ds::TopoDS_Face;
         type TopoDS_Shell = crate::topo_ds::TopoDS_Shell;
+        type TopoDS_Solid = crate::topo_ds::TopoDS_Solid;
         type Handle_Geom_Curve = crate::geom::Handle_Geom_Curve;
         type Handle_Geom_Surface = crate::geom::Handle_Geom_Surface;
         type Handle_Geom2d_Curve = crate::geom2d::Handle_Geom2d_Curve;
@@ -142,6 +143,9 @@ mod inner {
         pub fn BRepBuilderAPI_MakeSolid_new(
             shell: &TopoDS_Shell,
         ) -> UniquePtr<BRepBuilderAPI_MakeSolid>;
+        #[rust_name = "add_shell"]
+        pub fn Add(self: Pin<&mut BRepBuilderAPI_MakeSolid>, shell: &TopoDS_Shell);
+        pub fn Solid(self: Pin<&mut BRepBuilderAPI_MakeSolid>) -> &TopoDS_Solid;
         pub fn Shape(self: Pin<&mut BRepBuilderAPI_MakeSolid>) -> &TopoDS_Shape;
         pub fn Build(self: Pin<&mut BRepBuilderAPI_MakeSolid>, progress: &Message_ProgressRange);
         pub fn IsDone(self: &BRepBuilderAPI_MakeSolid) -> bool;

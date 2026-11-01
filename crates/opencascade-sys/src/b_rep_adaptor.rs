@@ -8,7 +8,12 @@ mod inner {
         type gp_Pnt = crate::gp::gp_Pnt;
         type gp_Vec = crate::gp::gp_Vec;
         type gp_Pln = crate::gp::gp_Pln;
+        type gp_Cylinder = crate::gp::gp_Cylinder;
+        type gp_Sphere = crate::gp::gp_Sphere;
+        type gp_Cone = crate::gp::gp_Cone;
+        type gp_Torus = crate::gp::gp_Torus;
         type GeomAbs_CurveType = crate::geom_abs::GeomAbs_CurveType;
+        type GeomAbs_SurfaceType = crate::geom_abs::GeomAbs_SurfaceType;
         type GeomAdaptor_Curve = crate::geom_adaptor::GeomAdaptor_Curve;
         type TopoDS_Edge = crate::topo_ds::TopoDS_Edge;
         type TopoDS_Face = crate::topo_ds::TopoDS_Face;
@@ -36,9 +41,24 @@ mod inner {
         pub fn LastUParameter(self: &BRepAdaptor_Surface) -> f64;
         pub fn FirstVParameter(self: &BRepAdaptor_Surface) -> f64;
         pub fn LastVParameter(self: &BRepAdaptor_Surface) -> f64;
+        pub fn BRepAdaptor_Surface_GetType(
+            surface: &BRepAdaptor_Surface,
+        ) -> GeomAbs_SurfaceType;
         pub fn BRepAdaptor_Surface_Plane(
             surface: &BRepAdaptor_Surface,
         ) -> Result<UniquePtr<gp_Pln>>;
+        pub fn BRepAdaptor_Surface_Cylinder(
+            surface: &BRepAdaptor_Surface,
+        ) -> Result<UniquePtr<gp_Cylinder>>;
+        pub fn BRepAdaptor_Surface_Sphere(
+            surface: &BRepAdaptor_Surface,
+        ) -> Result<UniquePtr<gp_Sphere>>;
+        pub fn BRepAdaptor_Surface_Cone(
+            surface: &BRepAdaptor_Surface,
+        ) -> Result<UniquePtr<gp_Cone>>;
+        pub fn BRepAdaptor_Surface_Torus(
+            surface: &BRepAdaptor_Surface,
+        ) -> Result<UniquePtr<gp_Torus>>;
         pub fn BRepAdaptor_Surface_value(
             surface: &BRepAdaptor_Surface,
             u: f64,

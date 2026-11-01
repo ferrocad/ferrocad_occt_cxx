@@ -6,7 +6,9 @@
 #include <ShapeFix_Shell.hxx>
 #include <ShapeFix_Solid.hxx>
 #include <ShapeFix_Shape.hxx>
+#include <ShapeFix_ShapeTolerance.hxx>
 #include <Geom_Surface.hxx>
+#include <TopAbs_ShapeEnum.hxx>
 #include <TopLoc_Location.hxx>
 #include <TopoDS_Shape.hxx>
 #include <TopoDS_Edge.hxx>
@@ -103,6 +105,30 @@ inline std::unique_ptr<Handle_ShapeFix_Shape> ShapeFix_Shape_from_shape(const To
   try {
     return std::unique_ptr<Handle_ShapeFix_Shape>(
         new Handle_ShapeFix_Shape(new ShapeFix_Shape(shape)));
+  }
+  SHAPEFIX_CATCH
+}
+
+inline std::unique_ptr<ShapeFix_ShapeTolerance> ShapeFix_ShapeTolerance_new() {
+  return std::unique_ptr<ShapeFix_ShapeTolerance>(new ShapeFix_ShapeTolerance());
+}
+
+inline void ShapeFix_ShapeTolerance_SetTolerance(const ShapeFix_ShapeTolerance &fix,
+                                                 const TopoDS_Shape &shape, Standard_Real value,
+                                                 TopAbs_ShapeEnum shape_type) {
+  try {
+    fix.SetTolerance(shape, value, shape_type);
+  }
+  SHAPEFIX_CATCH
+}
+
+inline Standard_Boolean ShapeFix_ShapeTolerance_LimitTolerance(const ShapeFix_ShapeTolerance &fix,
+                                                               const TopoDS_Shape &shape,
+                                                               Standard_Real minimum,
+                                                               Standard_Real maximum,
+                                                               TopAbs_ShapeEnum shape_type) {
+  try {
+    return fix.LimitTolerance(shape, minimum, maximum, shape_type);
   }
   SHAPEFIX_CATCH
 }

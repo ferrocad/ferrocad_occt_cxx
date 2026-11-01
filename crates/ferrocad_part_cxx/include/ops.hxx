@@ -5,5 +5,4 @@
 
 #include "ferrocad_part_cxx/include/curve.hxx"
 #include "ferrocad_part_cxx/include/geom2d.hxx"
-#include "ferrocad_part_cxx/include/shape_ops.hxx"
 #include "ferrocad_part_cxx/include/part_ops.hxx"

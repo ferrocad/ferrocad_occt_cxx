@@ -15,6 +15,9 @@ mod inner {
         type TopoDS_Compound = crate::topo_ds::TopoDS_Compound;
         type Handle_Geom_Surface = crate::geom::Handle_Geom_Surface;
         type TopLoc_Location = crate::top_loc::TopLoc_Location;
+        type TopAbs_ShapeEnum = crate::top_abs::TopAbs_ShapeEnum;
+
+        type ShapeFix_ShapeTolerance;
 
         type Handle_ShapeFix_Root;
         type Handle_ShapeFix_Edge;
@@ -62,6 +65,22 @@ mod inner {
         pub fn ShapeFix_Shell_as_root(h: &Handle_ShapeFix_Shell) -> &Handle_ShapeFix_Root;
         pub fn ShapeFix_Solid_as_root(h: &Handle_ShapeFix_Solid) -> &Handle_ShapeFix_Root;
         pub fn ShapeFix_Shape_as_root(h: &Handle_ShapeFix_Shape) -> &Handle_ShapeFix_Root;
+
+        // ShapeFix_ShapeTolerance
+        pub fn ShapeFix_ShapeTolerance_new() -> UniquePtr<ShapeFix_ShapeTolerance>;
+        pub fn ShapeFix_ShapeTolerance_SetTolerance(
+            fix: &ShapeFix_ShapeTolerance,
+            shape: &TopoDS_Shape,
+            value: f64,
+            shape_type: TopAbs_ShapeEnum,
+        ) -> Result<()>;
+        pub fn ShapeFix_ShapeTolerance_LimitTolerance(
+            fix: &ShapeFix_ShapeTolerance,
+            shape: &TopoDS_Shape,
+            minimum: f64,
+            maximum: f64,
+            shape_type: TopAbs_ShapeEnum,
+        ) -> Result<bool>;
 
         // ShapeFix_Edge
         pub fn ShapeFix_Edge_FixRemovePCurve_face(
