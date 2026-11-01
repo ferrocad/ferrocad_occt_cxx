@@ -16,6 +16,8 @@ mod ffi {
         type TopoDS_Shape = opencascade_sys::topo_ds::TopoDS_Shape;
         type TopoDS_Edge = opencascade_sys::topo_ds::TopoDS_Edge;
         type TopoDS_Face = opencascade_sys::topo_ds::TopoDS_Face;
+        type TopoDS_Vertex = opencascade_sys::topo_ds::TopoDS_Vertex;
+        type TopAbs_ShapeEnum = opencascade_sys::top_abs::TopAbs_ShapeEnum;
         type TopTools_IndexedMapOfShape = opencascade_sys::top_tools::TopTools_IndexedMapOfShape;
         type TopTools_IndexedDataMapOfShapeListOfShape =
             opencascade_sys::top_tools::TopTools_IndexedDataMapOfShapeListOfShape;
@@ -124,6 +126,29 @@ mod ffi {
         /// The number of direct children (`TopoDS_Iterator`).
         fn fc_direct_child_count(shape: &TopoDS_Shape) -> i32;
 
+        // --- closedness and tolerance -----------------------------------------
+        /// `BRep_Tool::IsClosed(shape)`: the shape's own `Closed` flag.
+        fn fc_shape_is_closed(shape: &TopoDS_Shape) -> bool;
+
+        /// `BRep_Tool::Tolerance` of a vertex.
+        fn fc_vertex_tolerance(vertex: &TopoDS_Vertex) -> f64;
+
+        /// `BRep_Tool::Tolerance` of an edge.
+        fn fc_edge_tolerance(edge: &TopoDS_Edge) -> f64;
+
+        /// `BRep_Tool::Tolerance` of a face.
+        fn fc_face_tolerance(face: &TopoDS_Face) -> f64;
+
+        /// Sub-shapes of type `to_find` that are not contained in a `to_avoid`
+        /// sub-shape (`TopExp_Explorer`). `TopAbs_SHAPE` as `to_avoid` explores
+        /// the whole subtree.
+        fn fc_explore(
+            shape: &TopoDS_Shape,
+            to_find: TopAbs_ShapeEnum,
+            to_avoid: TopAbs_ShapeEnum,
+            out: Pin<&mut TopTools_IndexedMapOfShape>,
+        );
+
         /// The minimum distance between two shapes and the closest point on each
         /// (`BRepExtrema_DistShapeShape`). False when there is no solution.
         fn fc_dist_to_shape(
@@ -171,6 +196,7 @@ pub use ffi::*;
 #[cfg(test)]
 mod tests {
     use super::{fc_copy_shape, fc_fillet_build};
+    use super::{fc_explore, fc_face_tolerance, fc_shape_is_closed};
     use crate::history::fc_shape_child;
     use cxx::UniquePtr;
     use opencascade_sys as sys;
@@ -214,5 +240,27 @@ mod tests {
             "a foreign edge must be reported, not built"
         );
         assert!(!message.is_empty(), "the failure carries OCCT's message");
+    }
+
+    #[test]
+    fn explore_and_predicates_answer_for_a_box() {
+        let cube = make_box(10.0);
+        // `IsClosed` is the shape's own `Closed` flag. A solid does not carry a
+        // meaningful one - a host policy asks its shells - so this must not be
+        // read as "the box is open".
+        assert!(!fc_shape_is_closed(&cube));
+
+        let mut faces = sys::top_tools::new_indexed_map_of_shape();
+        fc_explore(
+            &cube,
+            sys::top_abs::TopAbs_ShapeEnum::TopAbs_FACE,
+            sys::top_abs::TopAbs_ShapeEnum::TopAbs_SHAPE,
+            faces.pin_mut(),
+        );
+        assert_eq!(faces.Extent(), 6, "a box has six faces");
+
+        let face = faces.FindKey(1);
+        assert!(!fc_shape_is_closed(face), "a plane is not closed");
+        assert!(fc_face_tolerance(TopoDS::Face(face)) > 0.0, "a face carries a tolerance");
     }
 }

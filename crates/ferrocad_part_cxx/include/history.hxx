@@ -148,6 +148,35 @@ inline void fc_cut_build(BRepAlgoAPI_Cut& op)
     op.Build(range);
 }
 
+// The remaining setters/getters a caller needs to run a boolean operation
+// explicitly: parallel and non-destructive modes, the fuzzy value, and the
+// installed operands. Which values they are given is the caller's policy.
+
+inline void fc_cut_set_run_parallel(BRepAlgoAPI_Cut& op, bool enabled)
+{
+    op.SetRunParallel(enabled);
+}
+
+inline void fc_cut_set_non_destructive(BRepAlgoAPI_Cut& op, bool enabled)
+{
+    op.SetNonDestructive(enabled);
+}
+
+inline void fc_cut_set_fuzzy_value(BRepAlgoAPI_Cut& op, double value)
+{
+    op.SetFuzzyValue(value);
+}
+
+inline const TopTools_ListOfShape& fc_cut_arguments(const BRepAlgoAPI_Cut& op)
+{
+    return op.Arguments();
+}
+
+inline const TopTools_ListOfShape& fc_cut_tools(const BRepAlgoAPI_Cut& op)
+{
+    return op.Tools();
+}
+
 // --- shape structure --------------------------------------------------------
 // `TopoDS_Iterator` walks the *direct* children of a shape (unlike
 // `TopExp::MapShapes`, which recurses).

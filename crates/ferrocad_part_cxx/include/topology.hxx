@@ -13,6 +13,7 @@
 #include <Standard_Failure.hxx>
 #include <TopAbs_ShapeEnum.hxx>
 #include <TopExp.hxx>
+#include <TopExp_Explorer.hxx>
 #include <TopTools_IndexedDataMapOfShapeListOfShape.hxx>
 #include <TopTools_IndexedMapOfShape.hxx>
 #include <TopTools_ListIteratorOfListOfShape.hxx>
@@ -145,6 +146,44 @@ inline int fc_direct_child_count(const TopoDS_Shape& shape)
     for (TopoDS_Iterator it(shape); it.More(); it.Next())
         ++count;
     return count;
+}
+
+// `BRep_Tool::IsClosed(shape)`: the shape's own `Closed` flag (a seam edge, an
+// open wire, or the flag set by the last boolean/repair). Meaning is per shape
+// type, so how to combine it over a compound is the caller's policy.
+inline bool fc_shape_is_closed(const TopoDS_Shape& shape)
+{
+    return BRep_Tool::IsClosed(shape);
+}
+
+// `BRep_Tool::Tolerance` for the three sub-shape kinds that carry one. The
+// parameters are typed so a wrong cast cannot reach OCCT.
+inline double fc_vertex_tolerance(const TopoDS_Vertex& vertex)
+{
+    return BRep_Tool::Tolerance(vertex);
+}
+
+inline double fc_edge_tolerance(const TopoDS_Edge& edge)
+{
+    return BRep_Tool::Tolerance(edge);
+}
+
+inline double fc_face_tolerance(const TopoDS_Face& face)
+{
+    return BRep_Tool::Tolerance(face);
+}
+
+// Sub-shapes of type `to_find` that are not contained in a `to_avoid` sub-shape
+// (`TopExp_Explorer`), de-duplicated into `out`. Pass `TopAbs_SHAPE` as
+// `to_avoid` to explore the whole subtree.
+inline void fc_explore(const TopoDS_Shape& shape,
+                       TopAbs_ShapeEnum to_find,
+                       TopAbs_ShapeEnum to_avoid,
+                       TopTools_IndexedMapOfShape& out)
+{
+    out.Clear();
+    for (TopExp_Explorer xp(shape, to_find, to_avoid); xp.More(); xp.Next())
+        out.Add(xp.Current());
 }
 
 // --- geometry queries --------------------------------------------------------

@@ -10,6 +10,7 @@
 //! be donated to `opencascade-sys` (or merged into a sibling crate) without
 //! carrying FerroCAD-specific behaviour.
 
+pub mod bnd;
 pub mod chfi2d;
 pub mod history;
 pub mod shapefix;

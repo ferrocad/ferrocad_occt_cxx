@@ -22,11 +22,13 @@ fn main() {
     }
     for file in [
         "include/gtransform.hxx",
+        "include/bnd.hxx",
         "include/chfi2d.hxx",
         "include/shapefix.hxx",
         "include/history.hxx",
         "include/topology.hxx",
         "src/lib.rs",
+        "src/bnd.rs",
         "src/chfi2d.rs",
         "src/shapefix.rs",
         "src/history.rs",
@@ -44,6 +46,7 @@ fn main() {
 
     cxx_build::bridges([
         "src/lib.rs",
+        "src/bnd.rs",
         "src/chfi2d.rs",
         "src/shapefix.rs",
         "src/history.rs",

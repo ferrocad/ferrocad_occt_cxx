@@ -78,6 +78,21 @@ mod ffi {
         /// `Build()` with a default progress range.
         fn fc_cut_build(op: Pin<&mut BRepAlgoAPI_Cut>);
 
+        /// `SetRunParallel`.
+        fn fc_cut_set_run_parallel(op: Pin<&mut BRepAlgoAPI_Cut>, enabled: bool);
+
+        /// `SetNonDestructive`.
+        fn fc_cut_set_non_destructive(op: Pin<&mut BRepAlgoAPI_Cut>, enabled: bool);
+
+        /// `SetFuzzyValue`.
+        fn fc_cut_set_fuzzy_value(op: Pin<&mut BRepAlgoAPI_Cut>, value: f64);
+
+        /// The installed argument operands (`Arguments`).
+        fn fc_cut_arguments(op: &BRepAlgoAPI_Cut) -> &TopTools_ListOfShape;
+
+        /// The installed tool operands (`Tools`).
+        fn fc_cut_tools(op: &BRepAlgoAPI_Cut) -> &TopTools_ListOfShape;
+
         // --- shape structure --------------------------------------------------
         /// The number of *direct* children (`TopoDS_Iterator`).
         fn fc_shape_child_count(shape: &TopoDS_Shape) -> i32;

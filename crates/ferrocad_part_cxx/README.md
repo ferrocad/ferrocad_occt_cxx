@@ -24,17 +24,22 @@ boundary translates `Standard_Failure`; no sentinel values cross the bridge.
 
 `history` and `topology` expose the boolean-operation history, element maps,
 shape structure, BREP bytes and topology queries that `opencascade-sys` does not
-bridge. Most return values directly; the two checked builders
-(`fc_fillet_build`, `fc_chamfer_build`) return `bool` plus OCCT's own message
-instead of `Result`, because on OCCT 7.x `Standard_Failure` does not derive from
-`std::exception`: the C++ side must catch it itself, and a `bool` lets it hand
-back `GetMessageString()` unchanged rather than round-tripping it through
+bridge, plus the setters (`fc_cut_set_run_parallel`, `fc_cut_set_non_destructive`,
+`fc_cut_set_fuzzy_value`) and the `IsClosed`/`Tolerance` predicates a caller needs
+to build its own operation policy. `bnd` adds `Bnd_Box::SquareExtent` and
+`Precision::Confusion`.
+
+Most return values directly; the two checked builders (`fc_fillet_build`,
+`fc_chamfer_build`) return `bool` plus OCCT's own message instead of `Result`,
+because on OCCT 7.x `Standard_Failure` does not derive from `std::exception`: the
+C++ side must catch it itself, and a `bool` lets it hand back
+`GetMessageString()` unchanged rather than round-tripping it through
 `std::runtime_error::what()`. Their signatures are the ones a caller wants on
 OCCT 7 *and* 8.
 
-Still in `ferrocad_occt` (not here), because they encode FreeCAD's `TopoShape`
-policy: `fc_cut_prepare`, `fc_cut_set_auto_fuzzy`, `fc_is_closed`,
-`fc_shape_tolerance`.
+What a host application builds *on top* of these bindings is not here: FreeCAD's
+non-destructive/auto-fuzzy boolean policy and its `TopoShape::isClosed` and
+tolerance rules are implemented in Rust in `ferrocad_occt`.
 
 ## Donation
 
