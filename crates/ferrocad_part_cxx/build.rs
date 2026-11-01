@@ -23,8 +23,10 @@ fn main() {
     for file in [
         "include/gtransform.hxx",
         "include/chfi2d.hxx",
+        "include/shapefix.hxx",
         "src/lib.rs",
         "src/chfi2d.rs",
+        "src/shapefix.rs",
     ] {
         println!("cargo:rerun-if-changed={file}");
     }
@@ -36,7 +38,7 @@ fn main() {
         )
     });
 
-    cxx_build::bridges(["src/lib.rs", "src/chfi2d.rs"])
+    cxx_build::bridges(["src/lib.rs", "src/chfi2d.rs", "src/shapefix.rs"])
         .include(&include)
         .std("c++14")
         .compile("ferrocad-part-cxx");
