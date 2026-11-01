@@ -24,7 +24,6 @@ fn main() {
         "include/chfi2d.hxx",
         "include/curve.hxx",
         "include/geom2d.hxx",
-        "include/history.hxx",
         "include/ops.hxx",
         "include/part_ops.hxx",
         "include/shape_ops.hxx",
@@ -32,7 +31,6 @@ fn main() {
         "include/surface_ops.hxx",
         "include/topology.hxx",
         "src/chfi2d.rs",
-        "src/history.rs",
         "src/lib.rs",
         "src/ops.rs",
         "src/shapefix.rs",
@@ -52,7 +50,6 @@ fn main() {
     cxx_build::bridges([
         "src/chfi2d.rs",
         "src/shapefix.rs",
-        "src/history.rs",
         "src/ops.rs",
         "src/surface_ops.rs",
         "src/topology.rs",

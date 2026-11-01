@@ -9,6 +9,7 @@ mod inner {
         type TopTools_ListOfShape = crate::top_tools::TopTools_ListOfShape;
         type Message_ProgressRange = crate::message::Message_ProgressRange;
         type BOPAlgo_GlueEnum = crate::bop_algo::BOPAlgo_GlueEnum;
+        type BOPAlgo_Operation = crate::bop_algo::BOPAlgo_Operation;
 
         pub type BRepAlgoAPI_BuilderAlgo;
         pub fn SectionEdges(self: Pin<&mut BRepAlgoAPI_BuilderAlgo>) -> &TopTools_ListOfShape;
@@ -24,6 +25,15 @@ mod inner {
         pub fn IsDone(self: &BRepAlgoAPI_Fuse) -> bool;
         pub fn SectionEdges(self: Pin<&mut BRepAlgoAPI_Fuse>) -> &TopTools_ListOfShape;
         pub fn SetGlue(self: Pin<&mut BRepAlgoAPI_Fuse>, glue: BOPAlgo_GlueEnum);
+        pub fn Modified<'a>(
+            self: Pin<&'a mut BRepAlgoAPI_Fuse>,
+            shape: &'a TopoDS_Shape,
+        ) -> &'a TopTools_ListOfShape;
+        pub fn Generated<'a>(
+            self: Pin<&'a mut BRepAlgoAPI_Fuse>,
+            shape: &'a TopoDS_Shape,
+        ) -> &'a TopTools_ListOfShape;
+        pub fn IsDeleted(self: Pin<&mut BRepAlgoAPI_Fuse>, shape: &TopoDS_Shape) -> bool;
 
         type BRepAlgoAPI_Cut;
         #[cxx_name = "construct_unique"]
@@ -31,6 +41,8 @@ mod inner {
             shape_1: &TopoDS_Shape,
             shape_2: &TopoDS_Shape,
         ) -> UniquePtr<BRepAlgoAPI_Cut>;
+        #[cxx_name = "construct_unique"]
+        pub fn BRepAlgoAPI_Cut_new_default() -> UniquePtr<BRepAlgoAPI_Cut>;
         pub fn Shape(self: Pin<&mut BRepAlgoAPI_Cut>) -> &TopoDS_Shape;
         pub fn Build(self: Pin<&mut BRepAlgoAPI_Cut>, progress: &Message_ProgressRange);
         pub fn IsDone(self: &BRepAlgoAPI_Cut) -> bool;
@@ -38,7 +50,22 @@ mod inner {
             self: Pin<&'a mut BRepAlgoAPI_Cut>,
             shape: &'a TopoDS_Shape,
         ) -> &'a TopTools_ListOfShape;
+        pub fn Modified<'a>(
+            self: Pin<&'a mut BRepAlgoAPI_Cut>,
+            shape: &'a TopoDS_Shape,
+        ) -> &'a TopTools_ListOfShape;
+        pub fn IsDeleted(self: Pin<&mut BRepAlgoAPI_Cut>, shape: &TopoDS_Shape) -> bool;
         pub fn SectionEdges(self: Pin<&mut BRepAlgoAPI_Cut>) -> &TopTools_ListOfShape;
+        pub fn SetOperation(self: Pin<&mut BRepAlgoAPI_Cut>, operation: BOPAlgo_Operation);
+        pub fn SetArguments(self: Pin<&mut BRepAlgoAPI_Cut>, arguments: &TopTools_ListOfShape);
+        pub fn SetTools(self: Pin<&mut BRepAlgoAPI_Cut>, tools: &TopTools_ListOfShape);
+        pub fn SetNonDestructive(self: Pin<&mut BRepAlgoAPI_Cut>, enabled: bool);
+        // `BOPAlgo_Options` is a protected base of `BRepAlgoAPI_Cut`, so a
+        // direct method binding cannot form a pointer to the inherited member.
+        pub fn BRepAlgoAPI_Cut_SetRunParallel(op: Pin<&mut BRepAlgoAPI_Cut>, enabled: bool);
+        pub fn BRepAlgoAPI_Cut_SetFuzzyValue(op: Pin<&mut BRepAlgoAPI_Cut>, value: f64);
+        pub fn Arguments(self: &BRepAlgoAPI_Cut) -> &TopTools_ListOfShape;
+        pub fn Tools(self: &BRepAlgoAPI_Cut) -> &TopTools_ListOfShape;
 
         type BRepAlgoAPI_Common;
         #[cxx_name = "construct_unique"]
@@ -50,6 +77,15 @@ mod inner {
         pub fn Build(self: Pin<&mut BRepAlgoAPI_Common>, progress: &Message_ProgressRange);
         pub fn IsDone(self: &BRepAlgoAPI_Common) -> bool;
         pub fn SectionEdges(self: Pin<&mut BRepAlgoAPI_Common>) -> &TopTools_ListOfShape;
+        pub fn Modified<'a>(
+            self: Pin<&'a mut BRepAlgoAPI_Common>,
+            shape: &'a TopoDS_Shape,
+        ) -> &'a TopTools_ListOfShape;
+        pub fn Generated<'a>(
+            self: Pin<&'a mut BRepAlgoAPI_Common>,
+            shape: &'a TopoDS_Shape,
+        ) -> &'a TopTools_ListOfShape;
+        pub fn IsDeleted(self: Pin<&mut BRepAlgoAPI_Common>, shape: &TopoDS_Shape) -> bool;
 
         type BRepAlgoAPI_Section;
         #[cxx_name = "construct_unique"]

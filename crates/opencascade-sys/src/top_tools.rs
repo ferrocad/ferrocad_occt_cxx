@@ -23,11 +23,22 @@ mod inner {
         ) -> Pin<&mut TopoDS_Shape>;
         pub fn Size(self: &TopTools_ListOfShape) -> i32;
 
+        type TopTools_ListIteratorOfListOfShape;
+        #[cxx_name = "construct_unique"]
+        pub fn TopTools_ListIteratorOfListOfShape_new(
+            list: &TopTools_ListOfShape,
+        ) -> UniquePtr<TopTools_ListIteratorOfListOfShape>;
+        pub fn More(self: &TopTools_ListIteratorOfListOfShape) -> bool;
+        pub fn Next(self: Pin<&mut TopTools_ListIteratorOfListOfShape>);
+        pub fn Value(self: &TopTools_ListIteratorOfListOfShape) -> &TopoDS_Shape;
+
         type TopTools_IndexedMapOfShape;
         #[cxx_name = "construct_unique"]
         pub fn new_indexed_map_of_shape() -> UniquePtr<TopTools_IndexedMapOfShape>;
         pub fn Extent(self: &TopTools_IndexedMapOfShape) -> i32;
         pub fn FindKey(self: &TopTools_IndexedMapOfShape, index: i32) -> &TopoDS_Shape;
+        pub fn FindIndex(self: &TopTools_IndexedMapOfShape, shape: &TopoDS_Shape) -> i32;
+        pub fn Add(self: Pin<&mut TopTools_IndexedMapOfShape>, shape: &TopoDS_Shape) -> i32;
 
         type TopTools_IndexedDataMapOfShapeListOfShape;
         #[cxx_name = "construct_unique"]

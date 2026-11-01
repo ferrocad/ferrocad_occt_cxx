@@ -197,10 +197,21 @@ pub use ffi::*;
 mod tests {
     use super::{fc_copy_shape, fc_fillet_build};
     use super::{fc_explore, fc_face_tolerance, fc_shape_is_closed};
-    use crate::history::fc_shape_child;
     use cxx::UniquePtr;
     use opencascade_sys as sys;
     use sys::topo_ds::{TopoDS, TopoDS_Shape};
+
+    /// The first *direct* child of `shape` (`TopoDS_Iterator` order).
+    fn first_child(shape: &TopoDS_Shape) -> UniquePtr<TopoDS_Shape> {
+        let mut iterator = sys::topo_ds::TopoDS_Iterator_new(shape);
+        if iterator.More() {
+            let child = sys::topo_ds::TopoDS_Shape_to_owned(iterator.Value());
+            iterator.pin_mut().Next();
+            child
+        } else {
+            UniquePtr::null()
+        }
+    }
 
     fn non_null(shape: UniquePtr<TopoDS_Shape>) -> UniquePtr<TopoDS_Shape> {
         assert!(!shape.is_null(), "expected a shape");
@@ -222,10 +233,10 @@ mod tests {
         let other = make_box(5.0);
 
         // solid -> shell -> face -> wire -> edge; the edge is not part of `cube`.
-        let shell = non_null(fc_shape_child(&other, 1));
-        let face = non_null(fc_shape_child(&shell, 1));
-        let wire = non_null(fc_shape_child(&face, 1));
-        let edge = non_null(fc_shape_child(&wire, 1));
+        let shell = non_null(first_child(&other));
+        let face = non_null(first_child(&shell));
+        let wire = non_null(first_child(&face));
+        let edge = non_null(first_child(&wire));
         assert_eq!(
             edge.as_ref().unwrap().ShapeType(),
             sys::top_abs::TopAbs_ShapeEnum::TopAbs_EDGE

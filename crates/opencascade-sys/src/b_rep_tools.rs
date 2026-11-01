@@ -17,5 +17,8 @@ mod inner {
         pub fn write(shape: &TopoDS_Shape, path: String) -> bool;
         #[cxx_name = "read_brep_text"]
         pub fn read(path: String) -> UniquePtr<TopoDS_Shape>;
+
+        pub fn write_brep_bytes(shape: &TopoDS_Shape, out: &mut Vec<u8>);
+        pub fn read_brep_bytes(data: &[u8]) -> UniquePtr<TopoDS_Shape>;
     }
 }

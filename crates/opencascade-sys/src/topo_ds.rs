@@ -89,6 +89,13 @@ mod inner {
         pub fn ShapeType(self: &TopoDS_Shape) -> TopAbs_ShapeEnum;
         pub fn Orientation(self: &TopoDS_Shape) -> TopAbs_Orientation;
 
+        type TopoDS_Iterator;
+        #[cxx_name = "construct_unique"]
+        pub fn TopoDS_Iterator_new(shape: &TopoDS_Shape) -> UniquePtr<TopoDS_Iterator>;
+        pub fn More(self: &TopoDS_Iterator) -> bool;
+        pub fn Next(self: Pin<&mut TopoDS_Iterator>);
+        pub fn Value(self: &TopoDS_Iterator) -> &TopoDS_Shape;
+
         type TopoDS_Compound;
         #[cxx_name = "upcast_ref"]
         pub fn cast_compound_to_shape(wire: &TopoDS_Compound) -> &TopoDS_Shape;
