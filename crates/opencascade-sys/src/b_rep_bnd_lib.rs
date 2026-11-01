@@ -12,5 +12,12 @@ mod inner {
         type BRepBndLib;
         #[Self = "BRepBndLib"]
         pub fn Add(shape: &TopoDS_Shape, bb: Pin<&mut Bnd_Box>, use_triangulation: bool);
+        #[Self = "BRepBndLib"]
+        pub fn AddOptimal(
+            shape: &TopoDS_Shape,
+            bb: Pin<&mut Bnd_Box>,
+            use_triangulation: bool,
+            use_shape_tolerance: bool,
+        );
     }
 }

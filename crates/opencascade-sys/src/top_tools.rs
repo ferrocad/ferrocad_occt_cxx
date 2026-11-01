@@ -22,6 +22,7 @@ mod inner {
             face: &TopoDS_Shape,
         ) -> Pin<&mut TopoDS_Shape>;
         pub fn Size(self: &TopTools_ListOfShape) -> i32;
+        pub fn Extent(self: &TopTools_ListOfShape) -> i32;
         pub fn IsEmpty(self: &TopTools_ListOfShape) -> bool;
         pub fn list_clear(list: Pin<&mut TopTools_ListOfShape>);
 
