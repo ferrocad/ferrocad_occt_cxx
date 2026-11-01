@@ -38,6 +38,33 @@ const OCCT_LIBS: &[&str] = &[
     "TKXCAF",
 ];
 
+/// The OCCT toolkits present in the prebuilt wasm kernel (cadrum's
+/// `occt-8_0_1_rev3-wasm32_unknown_unknown`). It is headless: no visualization,
+/// OCAF, IGES, STL or BRepFeat toolkits, so it is a subset of `OCCT_LIBS`.
+/// `cargo check` compiles against the full header set; a final link only resolves
+/// what these archives provide.
+const OCCT_WASM_LIBS: &[&str] = &[
+    "TKernel",
+    "TKMath",
+    "TKBRep",
+    "TKTopAlgo",
+    "TKPrim",
+    "TKBO",
+    "TKBool",
+    "TKShHealing",
+    "TKMesh",
+    "TKGeomBase",
+    "TKGeomAlgo",
+    "TKG3d",
+    "TKG2d",
+    "TKXSBase",
+    "TKDE",
+    "TKDECascade",
+    "TKOffset",
+    "TKFillet",
+    "TKDESTEP",
+];
+
 /// Whether the detected OCCT `major`.`minor` is inside the supported range:
 /// `OCCT_VERSION.0` from `OCCT_VERSION.1` upwards, or any `OCCT_MAX_MAJOR` release.
 fn is_supported_occt_version(major: u8, minor: u8) -> bool {
@@ -60,13 +87,30 @@ fn main() {
     let is_windows = target.to_lowercase().contains("windows");
     let is_windows_gnu = target.to_lowercase().contains("windows-gnu");
 
-    let occt_config = OcctConfig::detect();
+    let is_wasm = target.starts_with("wasm32");
+    let occt_config = if is_wasm {
+        OcctConfig::detect_wasm()
+    } else {
+        OcctConfig::detect()
+    };
 
     println!("cargo:rustc-link-search=native={}", occt_config.library_dir.to_str().unwrap());
 
-    let lib_type = if occt_config.is_dynamic { "dylib" } else { "static" };
-    for lib in OCCT_LIBS {
-        println!("cargo:rustc-link-lib={lib_type}={lib}");
+    if is_wasm {
+        // Prebuilt wasm kernel: static archives, plus the libc++/EH runtime the
+        // tarball ships for its wasi-sdk build. `libc++.a` is linked by
+        // `link-cplusplus` as `-lc++` through the search path above.
+        for lib in OCCT_WASM_LIBS {
+            println!("cargo:rustc-link-lib=static={lib}");
+        }
+        for lib in wasm_runtime_libs(&occt_config.library_dir) {
+            println!("cargo:rustc-link-lib=static={lib}");
+        }
+    } else {
+        let lib_type = if occt_config.is_dynamic { "dylib" } else { "static" };
+        for lib in OCCT_LIBS {
+            println!("cargo:rustc-link-lib={lib_type}={lib}");
+        }
     }
 
     if is_windows {
@@ -155,6 +199,13 @@ fn main() {
         build.define("OCC_CONVERT_SIGNALS", "TRUE");
     }
 
+    if is_wasm {
+        // The prebuilt kernel uses the legacy wasm-EH encoding of the cross
+        // image's rebuilt sysroot; the bridge must match it or the EH metadata
+        // does not link. No-op without `-fwasm-exceptions`.
+        build.flag("-mllvm").flag("-wasm-use-legacy-eh=true");
+    }
+
     if let "windows" = std::env::consts::OS {
         let current = std::env::current_dir().unwrap();
         build.include(current.parent().unwrap());
@@ -178,6 +229,22 @@ fn main() {
     }
 }
 
+/// The `libcadrum_*.a` archives in the wasm tarball (`unwind`, `c++abi`, `c`),
+/// which carry the libc++/wasm-EH runtime the prebuilt OCCT was built against.
+fn wasm_runtime_libs(library_dir: &std::path::Path) -> Vec<String> {
+    let Ok(entries) = std::fs::read_dir(library_dir) else {
+        return Vec::new();
+    };
+    let mut names: Vec<String> = entries
+        .flatten()
+        .filter_map(|entry| entry.file_name().to_str().map(str::to_owned))
+        .filter(|name| name.starts_with("libcadrum") && name.ends_with(".a"))
+        .map(|name| name["lib".len()..name.len() - ".a".len()].to_owned())
+        .collect();
+    names.sort();
+    names
+}
+
 struct OcctConfig {
     include_dir: std::path::PathBuf,
     library_dir: std::path::PathBuf,
@@ -185,6 +252,62 @@ struct OcctConfig {
 }
 
 impl OcctConfig {
+    /// The prebuilt wasm32 kernel (cadrum's
+    /// `occt-8_0_1_rev3-wasm32_unknown_unknown`).
+    ///
+    /// There is no CMake probe on wasm: the tarball is an install tree, so the
+    /// layout is known. Point `OCCT_WASM_ROOT` at the extracted directory. The
+    /// tarball is built with wasi-sdk 33 (`--target=wasm32-wasip1`,
+    /// `-fwasm-exceptions`), so the bridge must be compiled with the same
+    /// toolchain; the `ghcr.io/lzpel/cross-wasm32-unknown-unknown` image provides
+    /// it.
+    fn detect_wasm() -> Self {
+        println!("cargo:rerun-if-env-changed=OCCT_WASM_ROOT");
+        let root = std::env::var_os("OCCT_WASM_ROOT").unwrap_or_else(|| {
+            panic!(
+                "building for wasm32 needs a prebuilt OCCT kernel.\n\
+                 Download https://github.com/lzpel/cadrum/releases/download/occt-8_0_1_rev3/\
+                 occt-8_0_1_rev3-wasm32_unknown_unknown.tar.gz, extract it, and set \
+                 OCCT_WASM_ROOT to the extracted directory. Build it inside the \
+                 ghcr.io/lzpel/cross-wasm32-unknown-unknown image."
+            )
+        });
+        let root = std::path::PathBuf::from(root);
+        let include_dir = root.join("include").join("opencascade");
+        let library_dir = root.join("lib");
+        if !library_dir.join("libTKernel.a").is_file() {
+            panic!(
+                "OCCT_WASM_ROOT ({}) does not look like the prebuilt wasm kernel: \
+                 expected lib/libTKernel.a and include/opencascade",
+                root.display()
+            );
+        }
+        let version = std::fs::read_to_string(include_dir.join("Standard_Version.hxx"))
+            .expect("the wasm OCCT prefix is missing Standard_Version.hxx");
+        let number = |name: &str| -> Option<u8> {
+            let prefix = format!("#define {name}");
+            version.lines().find_map(|line| {
+                line.trim()
+                    .strip_prefix(&prefix)
+                    .and_then(|rest| rest.split_whitespace().next())
+                    .and_then(|value| value.parse().ok())
+            })
+        };
+        let major = number("OCC_VERSION_MAJOR").expect("OCC_VERSION_MAJOR missing");
+        let minor = number("OCC_VERSION_MINOR").expect("OCC_VERSION_MINOR missing");
+        if !is_supported_occt_version(major, minor) {
+            panic!(
+                "the wasm OCCT kernel is {major}.{minor}, but {}.{}+ or {}.x is required",
+                OCCT_VERSION.0, OCCT_VERSION.1, OCCT_MAX_MAJOR
+            );
+        }
+        Self {
+            include_dir,
+            library_dir,
+            is_dynamic: false,
+        }
+    }
+
     /// Find OpenCASCADE library using cmake
     fn detect() -> Self {
         println!("cargo:rerun-if-env-changed=DEP_OCCT_ROOT");
