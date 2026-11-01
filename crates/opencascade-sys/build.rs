@@ -94,6 +94,7 @@ fn main() {
         "src/law.rs",
         "src/message.rs",
         "src/poly.rs",
+        "src/precision.rs",
         "src/shape_analysis.rs",
         "src/shape_upgrade.rs",
         "src/standard.rs",

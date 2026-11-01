@@ -28,6 +28,7 @@ pub mod iges_control;
 pub mod law;
 pub mod message;
 pub mod poly;
+pub mod precision;
 pub mod shape_analysis;
 pub mod shape_upgrade;
 pub mod standard;

@@ -26,5 +26,7 @@ mod inner {
         fn GetGap(self: &Bnd_Box) -> f64;
         fn Set(self: Pin<&mut Bnd_Box>, p: &gp_Pnt);
         fn SetGap(self: Pin<&mut Bnd_Box>, gap: f64);
+        /// The squared diagonal of the box.
+        fn SquareExtent(self: &Bnd_Box) -> f64;
     }
 }
