@@ -16,6 +16,7 @@ mod inner {
         type Handle_Geom_Surface = crate::geom::Handle_Geom_Surface;
         type TopLoc_Location = crate::top_loc::TopLoc_Location;
         type TopAbs_ShapeEnum = crate::top_abs::TopAbs_ShapeEnum;
+        type Handle_TopTools_HSequenceOfShape = crate::top_tools::Handle_TopTools_HSequenceOfShape;
 
         type ShapeFix_ShapeTolerance;
 
@@ -311,6 +312,10 @@ mod inner {
         pub fn ShapeFix_Face_FixIntersectingWires(h: &Handle_ShapeFix_Face) -> Result<bool>;
         pub fn ShapeFix_Face_FixWiresTwoCoincEdges(h: &Handle_ShapeFix_Face) -> Result<bool>;
         pub fn ShapeFix_Face_FixPeriodicDegenerated(h: &Handle_ShapeFix_Face) -> Result<bool>;
+        pub fn ShapeFix_Face_FixLoopWire(
+            h: &Handle_ShapeFix_Face,
+            wires: Pin<&mut Handle_TopTools_HSequenceOfShape>,
+        ) -> Result<bool>;
         pub fn ShapeFix_Face_Face(h: &Handle_ShapeFix_Face) -> Result<UniquePtr<TopoDS_Face>>;
         pub fn ShapeFix_Face_Result(h: &Handle_ShapeFix_Face) -> Result<UniquePtr<TopoDS_Shape>>;
         pub fn ShapeFix_Face_FixWireTool(h: &Handle_ShapeFix_Face) -> UniquePtr<Handle_ShapeFix_Wire>;

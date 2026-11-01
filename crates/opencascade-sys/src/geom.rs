@@ -70,6 +70,7 @@ mod inner {
         type Handle_Geom_Plane;
         pub fn IsNull(self: &Handle_Geom_Plane) -> bool;
         pub fn Geom_Plane_new(plane: &gp_Pln) -> UniquePtr<Handle_Geom_Plane>;
+        pub fn plane_to_surface(plane_handle: &Handle_Geom_Plane) -> UniquePtr<Handle_Geom_Surface>;
 
         type Handle_Geom_CylindricalSurface;
         pub fn IsNull(self: &Handle_Geom_CylindricalSurface) -> bool;

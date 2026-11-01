@@ -25,10 +25,8 @@ fn main() {
         "include/geom2d.hxx",
         "include/ops.hxx",
         "include/part_ops.hxx",
-        "include/shapefix.hxx",
         "src/lib.rs",
         "src/ops.rs",
-        "src/shapefix.rs",
     ] {
         println!("cargo:rerun-if-changed={file}");
     }
@@ -40,10 +38,7 @@ fn main() {
         )
     });
 
-    cxx_build::bridges([
-        "src/shapefix.rs",
-        "src/ops.rs",
-    ])
+    cxx_build::bridges(["src/ops.rs"])
         .include(&include)
         .std("c++14")
         .compile("ferrocad-part-cxx");

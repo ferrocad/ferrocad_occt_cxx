@@ -16,4 +16,3 @@
 //! those is tracked in ferrocad/ferrocad#2.
 
 pub mod ops;
-pub mod shapefix;

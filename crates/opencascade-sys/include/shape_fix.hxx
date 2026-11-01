@@ -18,6 +18,7 @@
 #include <TopoDS_Wire.hxx>
 #include <TopoDS_Vertex.hxx>
 #include <TopoDS_Compound.hxx>
+#include <TopTools_HSequenceOfShape.hxx>
 #include <bindings_common.hxx>
 
 #include <stdexcept>
@@ -686,6 +687,12 @@ inline bool ShapeFix_Face_FixWiresTwoCoincEdges(const Handle_ShapeFix_Face &h) {
 
 inline bool ShapeFix_Face_FixPeriodicDegenerated(const Handle_ShapeFix_Face &h) {
   try { return h->FixPeriodicDegenerated(); }
+  SHAPEFIX_CATCH
+}
+
+inline bool ShapeFix_Face_FixLoopWire(const Handle_ShapeFix_Face &h,
+                                      Handle_TopTools_HSequenceOfShape &wires) {
+  try { return h->FixLoopWire(*wires); }
   SHAPEFIX_CATCH
 }
 

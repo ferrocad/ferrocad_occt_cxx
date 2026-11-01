@@ -594,6 +594,10 @@ inline std::unique_ptr<Handle_Geom_Plane> Geom_Plane_new(const gp_Pln &plane) {
   return std::unique_ptr<Handle_Geom_Plane>(new Handle_Geom_Plane(new Geom_Plane(plane)));
 }
 
+inline std::unique_ptr<Handle_Geom_Surface> plane_to_surface(const Handle_Geom_Plane &plane_handle) {
+  return std::unique_ptr<Handle_Geom_Surface>(new Handle_Geom_Surface(plane_handle));
+}
+
 inline std::unique_ptr<gp_Pnt> HandleGeomCurve_Value(const Handle_Geom_Curve &curve, const Standard_Real U) {
   return std::unique_ptr<gp_Pnt>(new gp_Pnt(curve->Value(U)));
 }
