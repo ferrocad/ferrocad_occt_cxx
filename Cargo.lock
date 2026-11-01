@@ -946,6 +946,15 @@ dependencies = [
 ]
 
 [[package]]
+name = "ferrocad_part_cxx"
+version = "0.1.0"
+dependencies = [
+ "cxx",
+ "cxx-build",
+ "ferrocad_occt_cxx",
+]
+
+[[package]]
 name = "filetime"
 version = "0.2.25"
 source = "registry+https://github.com/rust-lang/crates.io-index"

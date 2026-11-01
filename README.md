@@ -2,9 +2,11 @@
 
 > **Fork.** This is FerroCAD's fork of
 > [`bschwind/opencascade-rs`](https://github.com/bschwind/opencascade-rs).
-> The package is published as `ferrocad_occt_cxx`; the Rust library keeps the
-> `opencascade_sys` name and the cxx include prefix stays `opencascade-sys`, so
-> downstream code is unchanged.
+> The workspace carries two crates: `crates/opencascade-sys` (package
+> `ferrocad_occt_cxx`) is the patched upstream binding — the Rust library keeps
+> the `opencascade_sys` name and the cxx include prefix stays `opencascade-sys` —
+> and `crates/ferrocad_part_cxx` holds FerroCAD's typed Part-layer bindings, so
+> `ferrocad_occt` can stay pure Rust.
 
 Rust bindings to [OpenCascade](https://dev.opencascade.org). The code is currently a major work in progress.
 
@@ -19,9 +21,12 @@ I currently work a full-time job and work on this in my spare time, so please ad
   `build.rs`.
 - **Rebasing:** add upstream as a remote and cherry-pick the fork commits onto a
   new upstream tag; fork tags are `v0.3.0-ferrocad.N`.
-- **Scope:** FerroCAD consumes the `opencascade-sys` layer. The high-level
-  `opencascade` crate is kept for upstream compatibility, not as this fork's
-  public API.
+- **Scope:** FerroCAD consumes the `opencascade-sys` layer plus
+  `ferrocad_part_cxx`. The high-level `opencascade` crate is kept for upstream
+  compatibility, not as this fork's public API.
+- **Layering:** `crates/opencascade-sys` stays a clean patch of upstream so it
+  can be rebased. FerroCAD-specific C++ lives in `crates/ferrocad_part_cxx`
+  (`LGPL-2.1-or-later`), with policy, validation and error mapping in Rust.
 - **License:** LGPL-2.1, unchanged. Upstream authors retain copyright; the
   modifications are recorded in the git history and here.
 

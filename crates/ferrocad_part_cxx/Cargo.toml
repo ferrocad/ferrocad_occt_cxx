@@ -1,0 +1,18 @@
+[package]
+name = "ferrocad_part_cxx"
+description = "FerroCAD's typed cxx bindings to the OpenCASCADE Part layer"
+authors = ["FerroCAD contributors"]
+license = "LGPL-2.1-or-later"
+version = "0.1.0"
+edition = "2021"
+repository = "https://github.com/ferrocad/ferrocad_occt_cxx"
+
+[lib]
+name = "ferrocad_part_cxx"
+
+[dependencies]
+opencascade-sys = { version = "0.3", path = "../opencascade-sys", package = "ferrocad_occt_cxx" }
+cxx = "1"
+
+[build-dependencies]
+cxx-build = "1"
