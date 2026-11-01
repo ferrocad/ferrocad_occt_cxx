@@ -10,6 +10,14 @@ mod inner {
         BRepOffset_RectoVerso,
     }
 
+    #[derive(Debug)]
+    #[repr(u32)]
+    pub enum BRepBuilderAPI_TransitionMode {
+        BRepBuilderAPI_Transformed,
+        BRepBuilderAPI_RightCorner,
+        BRepBuilderAPI_RoundCorner,
+    }
+
     unsafe extern "C++" {
         include!("opencascade-sys/include/b_rep_offset_api.hxx");
 
@@ -20,8 +28,10 @@ mod inner {
         type TopTools_ListOfShape = crate::top_tools::TopTools_ListOfShape;
         type Message_ProgressRange = crate::message::Message_ProgressRange;
         type Handle_Law_Function = crate::law::Handle_Law_Function;
+        type BRepAlgo_Image = crate::b_rep_algo::BRepAlgo_Image;
 
         type BRepOffset_Mode;
+        type BRepBuilderAPI_TransitionMode;
 
         type BRepOffsetAPI_MakeOffset;
         #[cxx_name = "construct_unique"]
@@ -34,6 +44,8 @@ mod inner {
             wire: &TopoDS_Wire,
             join: GeomAbs_JoinType,
         ) -> UniquePtr<BRepOffsetAPI_MakeOffset>;
+        pub fn Init(self: Pin<&mut BRepOffsetAPI_MakeOffset>, join: GeomAbs_JoinType, open_result: bool);
+        pub fn AddWire(self: Pin<&mut BRepOffsetAPI_MakeOffset>, wire: &TopoDS_Wire);
         pub fn Perform(self: Pin<&mut BRepOffsetAPI_MakeOffset>, offset: f64, alt: f64);
         pub fn Shape(self: Pin<&mut BRepOffsetAPI_MakeOffset>) -> &TopoDS_Shape;
         pub fn Build(self: Pin<&mut BRepOffsetAPI_MakeOffset>, progress: &Message_ProgressRange);
@@ -70,6 +82,7 @@ mod inner {
             profile: &TopoDS_Shape,
         ) -> UniquePtr<BRepOffsetAPI_MakePipe>;
         pub fn Shape(self: Pin<&mut BRepOffsetAPI_MakePipe>) -> &TopoDS_Shape;
+        pub fn IsDone(self: &BRepOffsetAPI_MakePipe) -> bool;
 
         type BRepOffsetAPI_MakePipeShell;
         #[cxx_name = "construct_unique"]
@@ -77,6 +90,10 @@ mod inner {
             spine: &TopoDS_Wire,
         ) -> UniquePtr<BRepOffsetAPI_MakePipeShell>;
         pub fn SetMode(self: Pin<&mut BRepOffsetAPI_MakePipeShell>, is_frenet: bool);
+        pub fn SetTransitionMode(
+            self: Pin<&mut BRepOffsetAPI_MakePipeShell>,
+            mode: BRepBuilderAPI_TransitionMode,
+        );
         pub fn Add(
             self: Pin<&mut BRepOffsetAPI_MakePipeShell>,
             profile: &TopoDS_Shape,
@@ -104,5 +121,25 @@ mod inner {
         pub fn Shape(self: Pin<&mut BRepOffsetAPI_ThruSections>) -> &TopoDS_Shape;
         pub fn Build(self: Pin<&mut BRepOffsetAPI_ThruSections>, progress: &Message_ProgressRange);
         pub fn IsDone(self: &BRepOffsetAPI_ThruSections) -> bool;
+
+        type BRepOffsetAPI_MakeOffsetShape;
+        #[cxx_name = "construct_unique"]
+        pub fn BRepOffsetAPI_MakeOffsetShape_new() -> UniquePtr<BRepOffsetAPI_MakeOffsetShape>;
+        #[allow(clippy::too_many_arguments)]
+        pub fn BRepOffsetAPI_MakeOffsetShape_PerformByJoin(
+            shape: Pin<&mut BRepOffsetAPI_MakeOffsetShape>,
+            source: &TopoDS_Shape,
+            offset: f64,
+            tolerance: f64,
+            mode: BRepOffset_Mode,
+            intersection: bool,
+            self_intersection: bool,
+            join: GeomAbs_JoinType,
+        ) -> Result<()>;
+        pub fn IsDone(self: &BRepOffsetAPI_MakeOffsetShape) -> bool;
+        pub fn Shape(self: Pin<&mut BRepOffsetAPI_MakeOffsetShape>) -> &TopoDS_Shape;
+        pub fn BRepOffsetAPI_MakeOffsetShape_OffsetEdgesFromShapes(
+            shape: &BRepOffsetAPI_MakeOffsetShape,
+        ) -> &BRepAlgo_Image;
     }
 }

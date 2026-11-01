@@ -11,6 +11,11 @@ mod inner {
         /// `Precision::Confusion()`, the default linear tolerance (1e-7).
         #[Self = "Precision"]
         fn Confusion() -> f64;
+
+        /// `Precision::IsInfinite()`: true when the magnitude reaches the
+        /// kernel's "infinite" threshold.
+        #[Self = "Precision"]
+        fn IsInfinite(value: f64) -> bool;
     }
 }
 
