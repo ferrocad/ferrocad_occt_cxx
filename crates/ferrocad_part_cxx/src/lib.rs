@@ -1,10 +1,14 @@
-//! Typed cxx bindings for the FerroCAD Part layer.
+//! Typed cxx bindings for OCCT calls that `opencascade-sys` does not expose.
 //!
-//! This crate owns the C++ boundary. Every OCCT call that `opencascade-sys`
-//! does not expose lives here, with OCCT's failure type translated to a Rust
-//! `Result` before it crosses cxx's `noexcept` shim. FerroCAD policy —
-//! validation, composition, history and error mapping — belongs in
-//! `ferrocad_occt`, not here.
+//! This crate is the C++ boundary and is **bindings only**: one function per
+//! OCCT call, named after the OCCT API, with typed results and exception
+//! translation. It contains no FerroCAD/FreeCAD semantics — no element naming,
+//! no history policy, no product decisions about what a shape operation should
+//! mean. Those stay in `ferrocad_occt` (Rust).
+//!
+//! That separation is deliberate: these bindings are generic OCCT access and can
+//! be donated to `opencascade-sys` (or merged into a sibling crate) without
+//! carrying FerroCAD-specific behaviour.
 
 #[cxx::bridge]
 mod ffi {

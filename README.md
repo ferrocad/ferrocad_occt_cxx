@@ -25,8 +25,9 @@ I currently work a full-time job and work on this in my spare time, so please ad
   `ferrocad_part_cxx`. The high-level `opencascade` crate is kept for upstream
   compatibility, not as this fork's public API.
 - **Layering:** `crates/opencascade-sys` stays a clean patch of upstream so it
-  can be rebased. FerroCAD-specific C++ lives in `crates/ferrocad_part_cxx`
-  (`LGPL-2.1-or-later`), with policy, validation and error mapping in Rust.
+  can be rebased. `crates/ferrocad_part_cxx` is the C++ boundary: generic OCCT
+  bindings only (`LGPL-2.1`, donation-ready), with FerroCAD/FreeCAD semantics,
+  validation and error mapping in Rust.
 - **License:** LGPL-2.1, unchanged. Upstream authors retain copyright; the
   modifications are recorded in the git history and here.
 
