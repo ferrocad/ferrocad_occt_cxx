@@ -22,12 +22,17 @@ FerroCAD's ABI, it belongs in `ferrocad_occt` (Rust), not here.
 `gtransform`, `ChFi2d` and `ShapeFix` all return typed `Result`s. The C++
 boundary translates `Standard_Failure`; no sentinel values cross the bridge.
 
-`history` and `topology` expose the boolean-operation history, element maps,
-shape structure, BREP bytes and topology queries that `opencascade-sys` does not
-bridge, plus the setters (`fc_cut_set_run_parallel`, `fc_cut_set_non_destructive`,
-`fc_cut_set_fuzzy_value`) and the `IsClosed`/`Tolerance` predicates a caller needs
-to build its own operation policy. `bnd` adds `Bnd_Box::SquareExtent` and
-`Precision::Confusion`.
+`history`, `topology`, `bnd`, `ops` and `surface_ops` carry the rest of what
+`opencascade-sys` does not bridge. `history`/`topology`/`bnd` are bindings in the
+sense above. `ops` and `surface_ops` arrived last, moved out of `ferrocad_occt`
+so that crate could become C++-free, and are **not yet up to this README's
+standard**: some entries still mirror a FreeCAD `TopoShape` method (for example
+`fc_make_wires`, `fc_defeature`, `fc_fix_shape`) and some carry flat `Vec<f64>`
+payloads instead of typed structs. Splitting those - generic call stays here,
+policy moves to Rust in `ferrocad_occt` - is the remaining work, tracked in
+ferrocad/ferrocad#2.
+
+`bnd` adds `Bnd_Box::SquareExtent` and `Precision::Confusion`.
 
 Most return values directly; the two checked builders (`fc_fillet_build`,
 `fc_chamfer_build`) return `bool` plus OCCT's own message instead of `Result`,
