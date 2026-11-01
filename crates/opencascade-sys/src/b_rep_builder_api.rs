@@ -131,6 +131,11 @@ mod inner {
             v2: f64,
             tol: f64,
         ) -> Result<UniquePtr<BRepBuilderAPI_MakeFace>>;
+        pub fn BRepBuilderAPI_MakeFace_Plane_wire(
+            plane: &gp_Pln,
+            wire: &TopoDS_Wire,
+            inside: bool,
+        ) -> Result<UniquePtr<BRepBuilderAPI_MakeFace>>;
         pub fn Face(self: &BRepBuilderAPI_MakeFace) -> &TopoDS_Face;
         pub fn Shape(self: Pin<&mut BRepBuilderAPI_MakeFace>) -> &TopoDS_Shape;
         pub fn Build(self: Pin<&mut BRepBuilderAPI_MakeFace>, progress: &Message_ProgressRange);
@@ -196,7 +201,9 @@ mod inner {
 
         type BRepBuilderAPI_Sewing;
         pub fn BRepBuilderAPI_Sewing_new(tolerance: f64) -> UniquePtr<BRepBuilderAPI_Sewing>;
+        pub fn BRepBuilderAPI_Sewing_new_default() -> UniquePtr<BRepBuilderAPI_Sewing>;
         pub fn Load(self: Pin<&mut BRepBuilderAPI_Sewing>, shape: &TopoDS_Shape);
+        pub fn BRepBuilderAPI_Sewing_Add(sewing: Pin<&mut BRepBuilderAPI_Sewing>, shape: &TopoDS_Shape);
         pub fn BRepBuilderAPI_Sewing_Perform(sewing: Pin<&mut BRepBuilderAPI_Sewing>) -> Result<()>;
         pub fn SewedShape(self: &BRepBuilderAPI_Sewing) -> &TopoDS_Shape;
 

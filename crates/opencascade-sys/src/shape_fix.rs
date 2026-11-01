@@ -28,6 +28,11 @@ mod inner {
         type Handle_ShapeFix_Solid;
         type Handle_ShapeFix_Shape;
 
+        pub fn IsNull(self: &Handle_ShapeFix_Wire) -> bool;
+        pub fn IsNull(self: &Handle_ShapeFix_Face) -> bool;
+        pub fn IsNull(self: &Handle_ShapeFix_Shell) -> bool;
+        pub fn IsNull(self: &Handle_ShapeFix_Solid) -> bool;
+
         // Construction
         pub fn ShapeFix_Root_new() -> UniquePtr<Handle_ShapeFix_Root>;
         pub fn ShapeFix_Edge_new() -> UniquePtr<Handle_ShapeFix_Edge>;

@@ -23,6 +23,10 @@ inline std::unique_ptr<Handle_Geom2d_Curve> ellipse_to_HandleGeom2d_Curve(const 
   return std::unique_ptr<Handle_Geom2d_Curve>(new Handle_Geom2d_Curve(ellipse_handle));
 }
 
+inline std::unique_ptr<Handle_Geom2d_Curve> Handle_Geom2d_Curve_new() {
+  return std::unique_ptr<Handle_Geom2d_Curve>(new Handle_Geom2d_Curve());
+}
+
 inline std::unique_ptr<Handle_Geom2d_TrimmedCurve> Geom2d_TrimmedCurve_new(const Handle_Geom2d_Curve &curve, double u1,
                                                                            double u2) {
   return std::unique_ptr<Handle_Geom2d_TrimmedCurve>(

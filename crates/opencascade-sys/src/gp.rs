@@ -74,14 +74,17 @@ mod inner {
         pub fn gp_Pln_new_abcd(a: f64, b: f64, c: f64, d: f64) -> Result<UniquePtr<gp_Pln>>;
         pub fn gp_Pln_new_frame(frame: &gp_Ax3) -> Result<UniquePtr<gp_Pln>>;
         pub fn gp_Pln_Axis(plane: &gp_Pln) -> UniquePtr<gp_Ax1>;
+        pub fn gp_Pln_Position(plane: &gp_Pln) -> UniquePtr<gp_Ax3>;
 
         type gp_Cylinder;
         pub fn gp_Cylinder_new(axis: &gp_Ax3, radius: f64) -> Result<UniquePtr<gp_Cylinder>>;
         pub fn Radius(self: &gp_Cylinder) -> f64;
+        pub fn gp_Cylinder_Position(cylinder: &gp_Cylinder) -> UniquePtr<gp_Ax3>;
 
         type gp_Sphere;
         pub fn gp_Sphere_new(axis: &gp_Ax3, radius: f64) -> Result<UniquePtr<gp_Sphere>>;
         pub fn Radius(self: &gp_Sphere) -> f64;
+        pub fn gp_Sphere_Position(sphere: &gp_Sphere) -> UniquePtr<gp_Ax3>;
 
         type gp_Cone;
         pub fn gp_Cone_new(
@@ -91,6 +94,7 @@ mod inner {
         ) -> Result<UniquePtr<gp_Cone>>;
         pub fn SemiAngle(self: &gp_Cone) -> f64;
         pub fn RefRadius(self: &gp_Cone) -> f64;
+        pub fn gp_Cone_Position(cone: &gp_Cone) -> UniquePtr<gp_Ax3>;
 
         type gp_Torus;
         pub fn gp_Torus_new(
@@ -100,6 +104,7 @@ mod inner {
         ) -> Result<UniquePtr<gp_Torus>>;
         pub fn MajorRadius(self: &gp_Torus) -> f64;
         pub fn MinorRadius(self: &gp_Torus) -> f64;
+        pub fn gp_Torus_Position(torus: &gp_Torus) -> UniquePtr<gp_Ax3>;
 
         type gp_Ax1;
         #[cxx_name = "construct_unique"]
@@ -128,6 +133,7 @@ mod inner {
         pub fn XDirection(self: &gp_Ax3) -> &gp_Dir;
         pub fn YDirection(self: &gp_Ax3) -> &gp_Dir;
         pub fn Direct(self: &gp_Ax3) -> bool;
+        pub fn YReverse(self: Pin<&mut gp_Ax3>);
 
         type gp_Dir2d;
         #[cxx_name = "construct_unique"]

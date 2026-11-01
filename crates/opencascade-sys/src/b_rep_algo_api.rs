@@ -97,5 +97,33 @@ mod inner {
         pub fn Build(self: Pin<&mut BRepAlgoAPI_Section>, progress: &Message_ProgressRange);
         pub fn IsDone(self: &BRepAlgoAPI_Section) -> bool;
         pub fn SectionEdges(self: Pin<&mut BRepAlgoAPI_Section>) -> &TopTools_ListOfShape;
+
+        type BRepAlgoAPI_Defeaturing;
+        pub fn BRepAlgoAPI_Defeaturing_new() -> UniquePtr<BRepAlgoAPI_Defeaturing>;
+        pub fn BRepAlgoAPI_Defeaturing_SetRunParallel(
+            defeaturing: Pin<&mut BRepAlgoAPI_Defeaturing>,
+            enabled: bool,
+        );
+        pub fn BRepAlgoAPI_Defeaturing_SetToFillHistory(
+            defeaturing: Pin<&mut BRepAlgoAPI_Defeaturing>,
+            enabled: bool,
+        );
+        pub fn BRepAlgoAPI_Defeaturing_SetShape(
+            defeaturing: Pin<&mut BRepAlgoAPI_Defeaturing>,
+            shape: &TopoDS_Shape,
+        );
+        pub fn BRepAlgoAPI_Defeaturing_AddFaceToRemove(
+            defeaturing: Pin<&mut BRepAlgoAPI_Defeaturing>,
+            shape: &TopoDS_Shape,
+        );
+        pub fn BRepAlgoAPI_Defeaturing_Build(
+            defeaturing: Pin<&mut BRepAlgoAPI_Defeaturing>,
+        ) -> Result<()>;
+        pub fn BRepAlgoAPI_Defeaturing_IsDone(
+            defeaturing: &BRepAlgoAPI_Defeaturing,
+        ) -> bool;
+        pub fn BRepAlgoAPI_Defeaturing_Shape(
+            defeaturing: Pin<&mut BRepAlgoAPI_Defeaturing>,
+        ) -> UniquePtr<TopoDS_Shape>;
     }
 }

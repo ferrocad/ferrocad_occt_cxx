@@ -96,3 +96,19 @@ inline void BRep_Builder_Range(const BRep_Builder &builder, const TopoDS_Edge &e
                                const Standard_Real first, const Standard_Real last) {
   builder.Range(edge, first, last);
 }
+
+inline void BRep_Builder_MakeFace(const BRep_Builder &builder, TopoDS_Face &face,
+                                  const Handle_Geom_Surface &surface, double tolerance) {
+  builder.MakeFace(face, surface, tolerance);
+}
+
+inline void BRep_Builder_MakeWire(const BRep_Builder &builder, TopoDS_Wire &wire) {
+  builder.MakeWire(wire);
+}
+
+inline void BRep_Builder_UpdateEdge(const BRep_Builder &builder, const TopoDS_Edge &edge,
+                                    const Handle_Geom2d_Curve &curve,
+                                    const Handle_Geom_Surface &surface,
+                                    const TopLoc_Location &location, double tolerance) {
+  builder.UpdateEdge(edge, curve, surface, location, tolerance);
+}

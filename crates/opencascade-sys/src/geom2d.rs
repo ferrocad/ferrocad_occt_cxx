@@ -14,6 +14,7 @@ mod inner {
         // Handles
         type Handle_Geom2d_Curve;
         pub fn IsNull(self: &Handle_Geom2d_Curve) -> bool;
+        pub fn Handle_Geom2d_Curve_new() -> UniquePtr<Handle_Geom2d_Curve>;
 
         type Handle_Geom2d_Ellipse;
         pub fn IsNull(self: &Handle_Geom2d_Ellipse) -> bool;

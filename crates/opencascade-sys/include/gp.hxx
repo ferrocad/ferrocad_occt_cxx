@@ -160,3 +160,23 @@ inline std::unique_ptr<gp_Dir> gp_Ax1_Direction(const gp_Ax1 &axis) {
 inline std::unique_ptr<gp_Dir> gp_Dir_Reversed(const gp_Dir &dir) {
   return std::unique_ptr<gp_Dir>(new gp_Dir(dir.Reversed()));
 }
+
+inline std::unique_ptr<gp_Ax3> gp_Pln_Position(const gp_Pln &plane) {
+  return std::unique_ptr<gp_Ax3>(new gp_Ax3(plane.Position()));
+}
+
+inline std::unique_ptr<gp_Ax3> gp_Cylinder_Position(const gp_Cylinder &cylinder) {
+  return std::unique_ptr<gp_Ax3>(new gp_Ax3(cylinder.Position()));
+}
+
+inline std::unique_ptr<gp_Ax3> gp_Sphere_Position(const gp_Sphere &sphere) {
+  return std::unique_ptr<gp_Ax3>(new gp_Ax3(sphere.Position()));
+}
+
+inline std::unique_ptr<gp_Ax3> gp_Cone_Position(const gp_Cone &cone) {
+  return std::unique_ptr<gp_Ax3>(new gp_Ax3(cone.Position()));
+}
+
+inline std::unique_ptr<gp_Ax3> gp_Torus_Position(const gp_Torus &torus) {
+  return std::unique_ptr<gp_Ax3>(new gp_Ax3(torus.Position()));
+}

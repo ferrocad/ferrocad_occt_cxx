@@ -86,6 +86,10 @@ inline std::unique_ptr<BRepBuilderAPI_Sewing> BRepBuilderAPI_Sewing_new(double t
   return std::unique_ptr<BRepBuilderAPI_Sewing>(new BRepBuilderAPI_Sewing(tolerance));
 }
 
+inline std::unique_ptr<BRepBuilderAPI_Sewing> BRepBuilderAPI_Sewing_new_default() {
+  return std::unique_ptr<BRepBuilderAPI_Sewing>(new BRepBuilderAPI_Sewing());
+}
+
 inline void BRepBuilderAPI_Sewing_Perform(BRepBuilderAPI_Sewing &sewing) {
   try {
     sewing.Perform();
@@ -97,4 +101,19 @@ inline void BRepBuilderAPI_Sewing_Perform(BRepBuilderAPI_Sewing &sewing) {
 inline std::unique_ptr<BRepBuilderAPI_NurbsConvert>
 BRepBuilderAPI_NurbsConvert_new(const TopoDS_Shape &shape) {
   return std::unique_ptr<BRepBuilderAPI_NurbsConvert>(new BRepBuilderAPI_NurbsConvert(shape));
+}
+
+inline std::unique_ptr<BRepBuilderAPI_MakeFace>
+BRepBuilderAPI_MakeFace_Plane_wire(const gp_Pln &plane, const TopoDS_Wire &wire, bool inside) {
+  try {
+    return std::unique_ptr<BRepBuilderAPI_MakeFace>(
+        new BRepBuilderAPI_MakeFace(plane, wire, inside));
+  } catch (const Standard_Failure &e) {
+    b_rep_builder_api_rethrow(e);
+    return nullptr;
+  }
+}
+
+inline void BRepBuilderAPI_Sewing_Add(BRepBuilderAPI_Sewing &sewing, const TopoDS_Shape &shape) {
+  sewing.Add(shape);
 }

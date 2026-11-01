@@ -1,4 +1,5 @@
 #include <BRepAdaptor_Curve.hxx>
+#include <BRepAdaptor_CompCurve.hxx>
 #include <GCPnts_AbscissaPoint.hxx>
 #include <GCPnts_TangentialDeflection.hxx>
 #include <GCPnts_UniformAbscissa.hxx>
@@ -46,6 +47,28 @@ inline void GCPnts_UniformAbscissa_Initialize_number(GCPnts_UniformAbscissa &sel
                                                      double first, double last) {
   try {
     self.Initialize(curve, number, first, last);
+  } catch (const Standard_Failure &e) {
+    gc_pnts_rethrow(e);
+  }
+}
+
+inline void GCPnts_UniformAbscissa_Initialize_abscissa_range(GCPnts_UniformAbscissa &self,
+                                                             const BRepAdaptor_Curve &curve,
+                                                             double abscissa, double first,
+                                                             double last) {
+  try {
+    self.Initialize(curve, abscissa, first, last);
+  } catch (const Standard_Failure &e) {
+    gc_pnts_rethrow(e);
+  }
+}
+
+inline void GCPnts_UniformAbscissa_Initialize_abscissa_range_comp(GCPnts_UniformAbscissa &self,
+                                                                  const BRepAdaptor_CompCurve &curve,
+                                                                  double abscissa, double first,
+                                                                  double last) {
+  try {
+    self.Initialize(curve, abscissa, first, last);
   } catch (const Standard_Failure &e) {
     gc_pnts_rethrow(e);
   }
@@ -127,5 +150,49 @@ inline double GCPnts_AbscissaPoint_Parameter(const GCPnts_AbscissaPoint &self) {
   } catch (const Standard_Failure &e) {
     gc_pnts_rethrow(e);
     return 0.0;
+  }
+}
+
+inline void GCPnts_UniformAbscissa_Initialize_abscissa_comp(GCPnts_UniformAbscissa &self,
+                                                           const BRepAdaptor_CompCurve &curve,
+                                                           double abscissa) {
+  try {
+    self.Initialize(curve, abscissa);
+  } catch (const Standard_Failure &e) {
+    gc_pnts_rethrow(e);
+  }
+}
+
+inline void GCPnts_UniformAbscissa_Initialize_number_comp(GCPnts_UniformAbscissa &self,
+                                                          const BRepAdaptor_CompCurve &curve,
+                                                          int number, double first, double last) {
+  try {
+    self.Initialize(curve, number, first, last);
+  } catch (const Standard_Failure &e) {
+    gc_pnts_rethrow(e);
+  }
+}
+
+inline std::unique_ptr<GCPnts_UniformDeflection>
+GCPnts_UniformDeflection_new_comp(const BRepAdaptor_CompCurve &curve, double deflection, double first,
+                                  double last) {
+  try {
+    return std::unique_ptr<GCPnts_UniformDeflection>(
+        new GCPnts_UniformDeflection(curve, deflection, first, last));
+  } catch (const Standard_Failure &e) {
+    gc_pnts_rethrow(e);
+    return nullptr;
+  }
+}
+
+inline std::unique_ptr<GCPnts_TangentialDeflection> GCPnts_TangentialDeflection_new_range_comp(
+    const BRepAdaptor_CompCurve &curve, double first, double last, double angular_deflection,
+    double curvature_deflection, int min_points) {
+  try {
+    return std::unique_ptr<GCPnts_TangentialDeflection>(new GCPnts_TangentialDeflection(
+        curve, first, last, angular_deflection, curvature_deflection, min_points));
+  } catch (const Standard_Failure &e) {
+    gc_pnts_rethrow(e);
+    return nullptr;
   }
 }

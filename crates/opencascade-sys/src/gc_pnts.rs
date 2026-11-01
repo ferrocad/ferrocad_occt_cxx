@@ -7,6 +7,7 @@ mod inner {
 
         type gp_Pnt = crate::gp::gp_Pnt;
         type BRepAdaptor_Curve = crate::b_rep_adaptor::BRepAdaptor_Curve;
+        type BRepAdaptor_CompCurve = crate::b_rep_adaptor::BRepAdaptor_CompCurve;
 
         type GCPnts_TangentialDeflection;
         #[cxx_name = "construct_unique"]
@@ -17,6 +18,14 @@ mod inner {
         ) -> UniquePtr<GCPnts_TangentialDeflection>;
         fn GCPnts_TangentialDeflection_new_range(
             curve: &BRepAdaptor_Curve,
+            first: f64,
+            last: f64,
+            angular_deflection: f64,
+            curvature_deflection: f64,
+            min_points: i32,
+        ) -> Result<UniquePtr<GCPnts_TangentialDeflection>>;
+        fn GCPnts_TangentialDeflection_new_range_comp(
+            curve: &BRepAdaptor_CompCurve,
             first: f64,
             last: f64,
             angular_deflection: f64,
@@ -44,16 +53,48 @@ mod inner {
             first: f64,
             last: f64,
         ) -> Result<()>;
+        fn GCPnts_UniformAbscissa_Initialize_abscissa_range(
+            algorithm: Pin<&mut GCPnts_UniformAbscissa>,
+            curve: &BRepAdaptor_Curve,
+            abscissa: f64,
+            first: f64,
+            last: f64,
+        ) -> Result<()>;
+        fn GCPnts_UniformAbscissa_Initialize_abscissa_range_comp(
+            algorithm: Pin<&mut GCPnts_UniformAbscissa>,
+            curve: &BRepAdaptor_CompCurve,
+            abscissa: f64,
+            first: f64,
+            last: f64,
+        ) -> Result<()>;
         fn IsDone(self: &GCPnts_UniformAbscissa) -> bool;
         fn GCPnts_UniformAbscissa_NbPoints(algorithm: &GCPnts_UniformAbscissa) -> Result<i32>;
         fn GCPnts_UniformAbscissa_Parameter(
             algorithm: &GCPnts_UniformAbscissa,
             index: i32,
         ) -> Result<f64>;
+        fn GCPnts_UniformAbscissa_Initialize_abscissa_comp(
+            algorithm: Pin<&mut GCPnts_UniformAbscissa>,
+            curve: &BRepAdaptor_CompCurve,
+            abscissa: f64,
+        ) -> Result<()>;
+        fn GCPnts_UniformAbscissa_Initialize_number_comp(
+            algorithm: Pin<&mut GCPnts_UniformAbscissa>,
+            curve: &BRepAdaptor_CompCurve,
+            number: i32,
+            first: f64,
+            last: f64,
+        ) -> Result<()>;
 
         type GCPnts_UniformDeflection;
         fn GCPnts_UniformDeflection_new(
             curve: &BRepAdaptor_Curve,
+            deflection: f64,
+            first: f64,
+            last: f64,
+        ) -> Result<UniquePtr<GCPnts_UniformDeflection>>;
+        fn GCPnts_UniformDeflection_new_comp(
+            curve: &BRepAdaptor_CompCurve,
             deflection: f64,
             first: f64,
             last: f64,

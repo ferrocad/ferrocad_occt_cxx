@@ -20,6 +20,7 @@ mod inner {
         type TColgp_HArray1OfPnt = crate::t_col_gp::TColgp_HArray1OfPnt;
         type TColStd_Array1OfReal = crate::t_col_std::TColStd_Array1OfReal;
         type TColStd_Array1OfInteger = crate::t_col_std::TColStd_Array1OfInteger;
+        type TColStd_Array2OfReal = crate::t_col_std::TColStd_Array2OfReal;
         type Handle_Standard_Type = crate::standard::Handle_Standard_Type;
         type GeomAbs_Shape = crate::geom_api::GeomAbs_Shape;
 
@@ -62,6 +63,7 @@ mod inner {
 
         type Handle_Geom_Surface;
         pub fn IsNull(self: &Handle_Geom_Surface) -> bool;
+        pub fn Handle_Geom_Surface_new() -> UniquePtr<Handle_Geom_Surface>;
         pub fn DynamicType(surface: &Handle_Geom_Surface) -> &Handle_Standard_Type;
 
         type Handle_Geom_BezierSurface;
@@ -101,6 +103,15 @@ mod inner {
         pub fn conical_to_surface(
             conical_handle: &Handle_Geom_ConicalSurface,
         ) -> UniquePtr<Handle_Geom_Surface>;
+        pub fn bspline_to_surface(
+            bspline_handle: &Handle_Geom_BSplineSurface,
+        ) -> UniquePtr<Handle_Geom_Surface>;
+        pub fn spherical_to_surface(
+            spherical_handle: &Handle_Geom_SphericalSurface,
+        ) -> UniquePtr<Handle_Geom_Surface>;
+        pub fn toroidal_to_surface(
+            toroidal_handle: &Handle_Geom_ToroidalSurface,
+        ) -> UniquePtr<Handle_Geom_Surface>;
 
         type Geom_BezierSurface;
         pub fn Geom_BezierSurface_new(
@@ -121,6 +132,8 @@ mod inner {
         ) -> UniquePtr<Handle_Geom_BezierCurve>;
 
         pub fn handle_geom_plane_location(plane: &Handle_Geom_Plane) -> &gp_Pnt;
+
+        pub fn Handle_Geom_Plane_Pln(plane: &Handle_Geom_Plane) -> UniquePtr<gp_Pln>;
 
         pub fn new_HandleGeomPlane_from_HandleGeomSurface(
             geom_surface_handle: &Handle_Geom_Surface,
@@ -311,6 +324,19 @@ mod inner {
             vmults: &TColStd_Array1OfInteger,
             udegree: i32,
             vdegree: i32,
+        ) -> Result<UniquePtr<Handle_Geom_BSplineSurface>>;
+        #[allow(clippy::too_many_arguments)]
+        pub fn Geom_BSplineSurface_new_full(
+            poles: &TColgp_Array2OfPnt,
+            weights: &TColStd_Array2OfReal,
+            uknots: &TColStd_Array1OfReal,
+            vknots: &TColStd_Array1OfReal,
+            umults: &TColStd_Array1OfInteger,
+            vmults: &TColStd_Array1OfInteger,
+            udegree: i32,
+            vdegree: i32,
+            uperiodic: bool,
+            vperiodic: bool,
         ) -> Result<UniquePtr<Handle_Geom_BSplineSurface>>;
 
         // B-spline surface readers

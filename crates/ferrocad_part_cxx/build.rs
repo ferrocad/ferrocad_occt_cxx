@@ -24,7 +24,6 @@ fn main() {
         "include/curve.hxx",
         "include/geom2d.hxx",
         "include/ops.hxx",
-        "include/part_ops.hxx",
         "src/lib.rs",
         "src/ops.rs",
     ] {

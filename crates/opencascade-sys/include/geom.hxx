@@ -24,6 +24,7 @@
 #include <TColgp_Array2OfPnt.hxx>
 #include <TColStd_Array1OfInteger.hxx>
 #include <TColStd_Array1OfReal.hxx>
+#include <TColStd_Array2OfReal.hxx>
 #include <bindings_common.hxx>
 #include <gp_Ax2.hxx>
 #include <gp_Ax3.hxx>
@@ -465,6 +466,21 @@ inline std::unique_ptr<Handle_Geom_BSplineSurface> Geom_BSplineSurface_new(
   }
 }
 
+inline std::unique_ptr<Handle_Geom_BSplineSurface> Geom_BSplineSurface_new_full(
+    const TColgp_Array2OfPnt &poles, const TColStd_Array2OfReal &weights,
+    const TColStd_Array1OfReal &uknots, const TColStd_Array1OfReal &vknots,
+    const TColStd_Array1OfInteger &umults, const TColStd_Array1OfInteger &vmults,
+    int udegree, int vdegree, bool uperiodic, bool vperiodic) {
+  try {
+    return std::unique_ptr<Handle_Geom_BSplineSurface>(new Handle_Geom_BSplineSurface(
+        new Geom_BSplineSurface(poles, weights, uknots, vknots, umults, vmults, udegree, vdegree,
+                                uperiodic, vperiodic)));
+  } catch (const Standard_Failure &e) {
+    geom_rethrow(e);
+    return nullptr;
+  }
+}
+
 inline std::unique_ptr<gp_Pnt> HandleGeomBSplineSurface_Value(const Handle_Geom_BSplineSurface &surface,
                                                               double u, double v) {
   return std::unique_ptr<gp_Pnt>(new gp_Pnt(surface->Value(u, v)));
@@ -568,12 +584,28 @@ inline std::unique_ptr<Handle_Geom_Surface> conical_to_surface(const Handle_Geom
   return std::unique_ptr<Handle_Geom_Surface>(new Handle_Geom_Surface(conical_handle));
 }
 
+inline std::unique_ptr<Handle_Geom_Surface> bspline_to_surface(const Handle_Geom_BSplineSurface &bspline_handle) {
+  return std::unique_ptr<Handle_Geom_Surface>(new Handle_Geom_Surface(bspline_handle));
+}
+
+inline std::unique_ptr<Handle_Geom_Surface> spherical_to_surface(const Handle_Geom_SphericalSurface &spherical_handle) {
+  return std::unique_ptr<Handle_Geom_Surface>(new Handle_Geom_Surface(spherical_handle));
+}
+
+inline std::unique_ptr<Handle_Geom_Surface> toroidal_to_surface(const Handle_Geom_ToroidalSurface &toroidal_handle) {
+  return std::unique_ptr<Handle_Geom_Surface>(new Handle_Geom_Surface(toroidal_handle));
+}
+
 inline std::unique_ptr<Handle_Geom_BezierSurface> Geom_BezierSurface_new(const TColgp_Array2OfPnt &poles) {
   return std::unique_ptr<Handle_Geom_BezierSurface>(
       new Handle_Geom_BezierSurface(new Geom_BezierSurface(poles)));
 }
 
 inline const gp_Pnt &handle_geom_plane_location(const Handle_Geom_Plane &plane) { return plane->Location(); }
+
+inline std::unique_ptr<gp_Pln> Handle_Geom_Plane_Pln(const Handle_Geom_Plane &plane) {
+  return std::unique_ptr<gp_Pln>(new gp_Pln(plane->Pln()));
+}
 
 inline std::unique_ptr<Handle_Geom_BezierCurve>
 Geom_BezierCurve_to_handle(std::unique_ptr<Geom_BezierCurve> bezier_curve) {
@@ -596,6 +628,10 @@ inline std::unique_ptr<Handle_Geom_Plane> Geom_Plane_new(const gp_Pln &plane) {
 
 inline std::unique_ptr<Handle_Geom_Surface> plane_to_surface(const Handle_Geom_Plane &plane_handle) {
   return std::unique_ptr<Handle_Geom_Surface>(new Handle_Geom_Surface(plane_handle));
+}
+
+inline std::unique_ptr<Handle_Geom_Surface> Handle_Geom_Surface_new() {
+  return std::unique_ptr<Handle_Geom_Surface>(new Handle_Geom_Surface());
 }
 
 inline std::unique_ptr<gp_Pnt> HandleGeomCurve_Value(const Handle_Geom_Curve &curve, const Standard_Real U) {

@@ -36,5 +36,9 @@ mod inner {
         pub fn RemoveInternalWires_GetResult(
             fix: &ShapeUpgrade_RemoveInternalWires,
         ) -> Result<UniquePtr<TopoDS_Shape>>;
+
+        pub fn ShapeUpgrade_ShellSewing_ApplySewing(
+            shape: &TopoDS_Shape,
+        ) -> Result<UniquePtr<TopoDS_Shape>>;
     }
 }

@@ -1,5 +1,6 @@
 #include <ShapeUpgrade_UnifySameDomain.hxx>
 #include <ShapeUpgrade_RemoveInternalWires.hxx>
+#include <ShapeUpgrade_ShellSewing.hxx>
 #include <Standard_Failure.hxx>
 #include <TopoDS_Shape.hxx>
 #include <bindings_common.hxx>
@@ -39,6 +40,20 @@ inline std::unique_ptr<TopoDS_Shape>
 RemoveInternalWires_GetResult(const ShapeUpgrade_RemoveInternalWires &fix) {
   try {
     return std::unique_ptr<TopoDS_Shape>(new TopoDS_Shape(fix.GetResult()));
+  } catch (const Standard_Failure &e) {
+    shape_upgrade_rethrow(e);
+    return nullptr;
+  }
+}
+
+inline std::unique_ptr<TopoDS_Shape>
+ShapeUpgrade_ShellSewing_ApplySewing(const TopoDS_Shape &shape) {
+  try {
+    ShapeUpgrade_ShellSewing sewing;
+    TopoDS_Shape sewn = sewing.ApplySewing(shape);
+    if (sewn.IsNull())
+      return nullptr;
+    return std::unique_ptr<TopoDS_Shape>(new TopoDS_Shape(sewn));
   } catch (const Standard_Failure &e) {
     shape_upgrade_rethrow(e);
     return nullptr;

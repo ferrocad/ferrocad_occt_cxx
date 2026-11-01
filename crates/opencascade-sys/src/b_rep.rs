@@ -11,6 +11,7 @@ mod inner {
         type TopoDS_Face = crate::topo_ds::TopoDS_Face;
         type TopoDS_Edge = crate::topo_ds::TopoDS_Edge;
         type TopoDS_Vertex = crate::topo_ds::TopoDS_Vertex;
+        type TopoDS_Wire = crate::topo_ds::TopoDS_Wire;
         type Handle_Geom_Surface = crate::geom::Handle_Geom_Surface;
         type Handle_Geom_Curve = crate::geom::Handle_Geom_Curve;
         type Handle_Geom2d_Curve = crate::geom2d::Handle_Geom2d_Curve;
@@ -31,6 +32,21 @@ mod inner {
             edge: &TopoDS_Edge,
             first: f64,
             last: f64,
+        );
+        pub fn BRep_Builder_MakeFace(
+            builder: &BRep_Builder,
+            face: Pin<&mut TopoDS_Face>,
+            surface: &Handle_Geom_Surface,
+            tolerance: f64,
+        );
+        pub fn BRep_Builder_MakeWire(builder: &BRep_Builder, wire: Pin<&mut TopoDS_Wire>);
+        pub fn BRep_Builder_UpdateEdge(
+            builder: &BRep_Builder,
+            edge: &TopoDS_Edge,
+            curve: &Handle_Geom2d_Curve,
+            surface: &Handle_Geom_Surface,
+            location: &TopLoc_Location,
+            tolerance: f64,
         );
 
         type BRep_Tool;

@@ -47,6 +47,15 @@ mod inner {
         pub fn cast_wire_to_shape(wire: &TopoDS_Wire) -> &TopoDS_Shape;
         #[cxx_name = "construct_unique"]
         pub fn TopoDS_Wire_to_owned(shape: &TopoDS_Wire) -> UniquePtr<TopoDS_Wire>;
+        #[cxx_name = "construct_unique"]
+        pub fn TopoDS_Wire_new() -> UniquePtr<TopoDS_Wire>;
+        pub fn Location(self: &TopoDS_Wire) -> &TopLoc_Location;
+        #[cxx_name = "Location"]
+        pub fn set_location(
+            self: Pin<&mut TopoDS_Wire>,
+            location: &TopLoc_Location,
+            raise_exception: bool,
+        );
 
         type TopoDS_Face;
         #[cxx_name = "upcast_ref"]
