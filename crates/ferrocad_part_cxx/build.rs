@@ -29,13 +29,11 @@ fn main() {
         "include/shape_ops.hxx",
         "include/shapefix.hxx",
         "include/surface_ops.hxx",
-        "include/topology.hxx",
         "src/chfi2d.rs",
         "src/lib.rs",
         "src/ops.rs",
         "src/shapefix.rs",
         "src/surface_ops.rs",
-        "src/topology.rs",
     ] {
         println!("cargo:rerun-if-changed={file}");
     }
@@ -52,7 +50,6 @@ fn main() {
         "src/shapefix.rs",
         "src/ops.rs",
         "src/surface_ops.rs",
-        "src/topology.rs",
     ])
         .include(&include)
         .std("c++14")

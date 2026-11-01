@@ -19,4 +19,3 @@ pub mod chfi2d;
 pub mod ops;
 pub mod shapefix;
 pub mod surface_ops;
-pub mod topology;

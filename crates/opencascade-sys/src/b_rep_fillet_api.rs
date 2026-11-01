@@ -11,6 +11,7 @@ mod inner {
         type TopoDS_Vertex = crate::topo_ds::TopoDS_Vertex;
         type TColgp_Array1OfPnt2d = crate::t_col_gp::TColgp_Array1OfPnt2d;
         type Message_ProgressRange = crate::message::Message_ProgressRange;
+        type TopTools_ListOfShape = crate::top_tools::TopTools_ListOfShape;
 
         type BRepFilletAPI_MakeFillet;
         #[cxx_name = "construct_unique"]
@@ -35,6 +36,16 @@ mod inner {
         pub fn Shape(self: Pin<&mut BRepFilletAPI_MakeFillet>) -> &TopoDS_Shape;
         pub fn Build(self: Pin<&mut BRepFilletAPI_MakeFillet>, progress: &Message_ProgressRange);
         pub fn IsDone(self: &BRepFilletAPI_MakeFillet) -> bool;
+        // Inherited `BRepBuilderAPI_MakeShape` history.
+        pub fn Modified<'a>(
+            self: Pin<&'a mut BRepFilletAPI_MakeFillet>,
+            shape: &'a TopoDS_Shape,
+        ) -> &'a TopTools_ListOfShape;
+        pub fn Generated<'a>(
+            self: Pin<&'a mut BRepFilletAPI_MakeFillet>,
+            shape: &'a TopoDS_Shape,
+        ) -> &'a TopTools_ListOfShape;
+        pub fn IsDeleted(self: Pin<&mut BRepFilletAPI_MakeFillet>, shape: &TopoDS_Shape) -> bool;
 
         type BRepFilletAPI_MakeFillet2d;
         #[cxx_name = "construct_unique"]
@@ -71,9 +82,34 @@ mod inner {
         ) -> UniquePtr<BRepFilletAPI_MakeChamfer>;
         #[rust_name = "add_edge"]
         pub fn Add(self: Pin<&mut BRepFilletAPI_MakeChamfer>, distance: f64, edge: &TopoDS_Edge);
+        /// The two-distance chamfer form. OCCT's argument order is `(d1, d2, edge, face)`.
+        #[rust_name = "add_asym"]
+        pub fn Add(
+            self: Pin<&mut BRepFilletAPI_MakeChamfer>,
+            distance1: f64,
+            distance2: f64,
+            edge: &TopoDS_Edge,
+            face: &TopoDS_Face,
+        );
         pub fn Shape(self: Pin<&mut BRepFilletAPI_MakeChamfer>) -> &TopoDS_Shape;
         pub fn Build(self: Pin<&mut BRepFilletAPI_MakeChamfer>, progress: &Message_ProgressRange);
         pub fn IsDone(self: &BRepFilletAPI_MakeChamfer) -> bool;
+        // Inherited `BRepBuilderAPI_MakeShape` history.
+        pub fn Modified<'a>(
+            self: Pin<&'a mut BRepFilletAPI_MakeChamfer>,
+            shape: &'a TopoDS_Shape,
+        ) -> &'a TopTools_ListOfShape;
+        pub fn Generated<'a>(
+            self: Pin<&'a mut BRepFilletAPI_MakeChamfer>,
+            shape: &'a TopoDS_Shape,
+        ) -> &'a TopTools_ListOfShape;
+        pub fn IsDeleted(self: Pin<&mut BRepFilletAPI_MakeChamfer>, shape: &TopoDS_Shape) -> bool;
+
+        // `Build()` can raise `Standard_Failure` (not a `std::exception` on OCCT
+        // 7.x). The C++ helper translates it into `std::runtime_error` so cxx's
+        // `Result` shim delivers it instead of aborting.
+        pub fn BRepFilletAPI_MakeFillet_build(op: Pin<&mut BRepFilletAPI_MakeFillet>) -> Result<()>;
+        pub fn BRepFilletAPI_MakeChamfer_build(op: Pin<&mut BRepFilletAPI_MakeChamfer>) -> Result<()>;
     }
 }
 

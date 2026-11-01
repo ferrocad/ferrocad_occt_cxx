@@ -31,6 +31,8 @@ mod inner {
         pub fn cast_vertex_to_shape(wire: &TopoDS_Vertex) -> &TopoDS_Shape;
         #[cxx_name = "construct_unique"]
         pub fn TopoDS_Vertex_to_owned(shape: &TopoDS_Vertex) -> UniquePtr<TopoDS_Vertex>;
+        #[cxx_name = "construct_unique"]
+        pub fn TopoDS_Vertex_new() -> UniquePtr<TopoDS_Vertex>;
 
         type TopoDS_Edge;
         #[cxx_name = "upcast_ref"]
