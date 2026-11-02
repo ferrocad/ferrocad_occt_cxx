@@ -132,7 +132,14 @@ fn main() {
         // against the kernel's own headers with its wasi-sdk, so no OCCT rebuild
         // is involved (see the README). Without it, `split_shape` — reachable
         // from the `GeometryBackend` vtable — does not link.
-        let tkfeat = occt_config.library_dir.join("libTKFeat.a").is_file();
+        let tkfeat_path = occt_config.library_dir.join("libTKFeat.a");
+        let tkfeat = tkfeat_path.is_file();
+        // Track the archive so that adding or deleting it re-runs this script and
+        // therefore relinks. Cargo treats a missing path as changed, so while the
+        // archive is absent the script re-runs on every build — cheap, and it is
+        // what turns "link failed, now build TKFeat, build again" into a working
+        // `cargo build` instead of a stale cached link line.
+        println!("cargo:rerun-if-changed={}", tkfeat_path.display());
         if !tkfeat {
             println!(
                 "cargo:warning=the wasm kernel has no libTKFeat.a, so BRepFeat (and \
