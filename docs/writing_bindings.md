@@ -10,7 +10,7 @@ For that we use [CXX](https://cxx.rs/), by dtolnay. CXX itself is also somewhat 
 
 ### `build.rs`
 
-At the very bottom, we have the [occt-sys crate](../crates/occt-sys/), which builds OpenCascade C++ project statically without any modifications.
+At the very bottom, upstream had the `occt-sys` crate, which builds the OpenCascade C++ project statically without any modifications. **This fork removed it** together with the `builtin` feature, so there is no in-tree kernel build; the bindings link whatever OCCT the environment points them at.
 
 Right above this is [opencascade-sys crate](../crates/opencascade-sys), which has a [build.rs](../crates/opencascade-sys/build.rs) file with necessary `cxx` infrastructure to compile its wrapper and C++ bindings to OpenCascade.
 
@@ -285,7 +285,7 @@ How do you know which libraries to link? If you look up `STEPControl_Reader` you
 
 The rest of the libraries were found through trial and error. The linker will complain that symbols are missing, so copy-paste those symbols into a search engine, find them on OpenCascade's documentation site, and note which library they came from. Alternatively, you could poke through the project's CMake and other build files to determine which libraries you need to link to.
 
-Update - The STEP module has now been moved to be `TKDESTEP`, but the general flow above still applies. Also check `OCCT/adm/MODULES` for a list of all modules. Keep in mind this project also maintains a patch directory (`occt-sys/patch`) which uses a minimized `MODULES` and `RESOURCES` file to reduce code size and build times, as we don't need things like visualization code or test files.
+Update - The STEP module has now been moved to be `TKDESTEP`, but the general flow above still applies. Also check `OCCT/adm/MODULES` for a list of all modules. Upstream also maintained a patch directory in `occt-sys/patch` (a minimized `MODULES`/`RESOURCES` file) to reduce code size and build times; this fork removed that crate, so an OCCT you build yourself is unpatched.
 
 If you want to search purely by the OpenCascade codebase, find your module in a `PACAKGES` file. For example, the `STEPControl` module is listed in `TKDESTEP/PACKAGES`. If OpenCascade ever changes module layout, this may change so double check what you find.
 

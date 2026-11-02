@@ -318,21 +318,17 @@ impl OcctConfig {
             println!("cargo:rerun-if-env-changed={var}");
         }
 
-        // Add path to builtin OCCT
-        #[cfg(feature = "builtin")]
-        {
-            occt_sys::build_occt();
-            std::env::set_var("DEP_OCCT_ROOT", occt_sys::occt_path().as_os_str());
-        }
-
-        let dst =
-            std::panic::catch_unwind(|| cmake::Config::new("OCCT").register_dep("occt").build());
-
-        #[cfg(feature = "builtin")]
-        let dst = dst.expect("Builtin OpenCASCADE library not found.");
-
-        #[cfg(not(feature = "builtin"))]
-        let dst = dst.expect("Pre-installed OpenCASCADE library not found. You can use `builtin` feature if you do not want to install OCCT libraries system-wide.");
+        // There is no in-tree OCCT build: this crate only ever links a kernel
+        // that already exists (an install prefix, or the prebuilt wasm one).
+        let dst = std::panic::catch_unwind(|| {
+            cmake::Config::new("OCCT").register_dep("occt").build()
+        })
+        .expect(
+            "Pre-installed OpenCASCADE library not found. Point OpenCASCADE_DIR at the \
+             directory containing OpenCASCADEConfig.cmake and OCCT_INCLUDE_DIR at the \
+             matching include directory (see the README); this fork does not build \
+             OCCT from source.",
+        );
 
         let cfg = std::fs::read_to_string(dst.join("share").join("occ_info.txt"))
             .expect("Something went wrong when detecting OpenCASCADE library.");
@@ -360,12 +356,7 @@ impl OcctConfig {
             (version_major, version_minor, include_dir, library_dir)
         {
             if !is_supported_occt_version(version_major, version_minor) {
-                #[cfg(feature = "builtin")]
-                panic!("Builtin OpenCASCADE library found but version is not met (found {}.{} but {}.{}+ or {}.x required). Please fix OCCT_VERSION in build script of `opencascade-sys` crate or submodule OCCT in `occt-sys` crate.",
-                       version_major, version_minor, OCCT_VERSION.0, OCCT_VERSION.1, OCCT_MAX_MAJOR);
-
-                #[cfg(not(feature = "builtin"))]
-                panic!("Pre-installed OpenCASCADE library found but version is not met (found {}.{} but {}.{}+ or {}.x required). Please provide required version or use `builtin` feature.",
+                panic!("Pre-installed OpenCASCADE library found but version is not met (found {}.{} but {}.{}+ or {}.x required). Please provide the required version.",
                        version_major, version_minor, OCCT_VERSION.0, OCCT_VERSION.1, OCCT_MAX_MAJOR);
             }
 

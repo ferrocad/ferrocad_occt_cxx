@@ -19,11 +19,15 @@ I currently work a full-time job and work on this in my spare time, so please ad
     `opencascade_sys`) — the only crate FerroCAD builds.
   - `crates/model-api` (the WIT contract) and `crates/wasm-example` (a model
     compiled to `wasm32-unknown-unknown`) — the WASM path.
-  - `crates/occt-sys` — the optional `builtin` static build of OCCT.
 - **Removed:** upstream's high-level `opencascade` API, the `viewer` demo, the
   KiCad parser and the example models. FerroCAD does not use them, and the WASM
   path is the model/WIT boundary rather than the demo host. They remain in the
   git history if they are ever needed again.
+- **Removed:** `crates/occt-sys`, its OCCT git submodule and the `builtin`
+  feature. The bindings link a kernel that already exists — an install prefix or
+  the prebuilt wasm kernel — and never fetch or compile OCCT's source. Cargo
+  clones submodules of git dependencies unconditionally, so the submodule meant
+  every consumer of these bindings cloned the whole upstream kernel.
 - **OCCT versions:** 7.8.1 (the CI default) and 8.0.1.
 - **Rebasing:** add upstream as a remote and cherry-pick the fork commits onto a
   new upstream tag; fork tags are `v0.3.0-ferrocad.N`.
@@ -74,8 +78,9 @@ There are other benefits:
 
 ## Building
 
-* `cargo build --release`. No submodule to initialise: the default build links an
-  installed OCCT, and only `builtin` needs the kernel's source (see below).
+* `cargo build --release`. Nothing to initialise: this crate binds an OCCT that
+  already exists (an install prefix or the prebuilt wasm kernel). It never
+  fetches or compiles OCCT's source.
 
 ### Using a pre-installed OpenCASCADE (the default)
 
@@ -94,24 +99,25 @@ cargo build
 This is the fast path, it is what FerroCAD uses, and it keeps OCCT a shared library
 (one kernel on disk, updated independently of the binary).
 
-### Building OCCT from source (`builtin`)
+### Building OCCT yourself
 
-If no OCCT is installed, enable the vendored build. It compiles the whole kernel from
-an OCCT checkout — minutes to build, and statically linked.
+There is no in-tree OCCT build and no `builtin` feature. The bindings only ever link a
+kernel that already exists, which keeps the build fast, keeps OCCT shared (one kernel on
+disk) and — unlike a vendored static copy — makes it obvious that swapping kernels is a
+contained change.
+
+To build OCCT from source, use its own CMake build and point the variables above at the
+install prefix:
 
 ```sh
-git clone --depth 1 --branch V8_0_1 https://github.com/Open-Cascade-SAS/OCCT.git \
-    crates/occt-sys/OCCT
-cargo build --features builtin
+git clone --depth 1 --branch V8_0_1 https://github.com/Open-Cascade-SAS/OCCT.git
+git -C OCCT submodule update --init
+cmake -S OCCT -B occt-build -DCMAKE_INSTALL_PREFIX="$PWD/.occt/prefix" \
+    -DBUILD_LIBRARY_TYPE=Shared -DBUILD_MODULE_Draw=FALSE -DUSE_OPENGL=FALSE
+cmake --build occt-build --target install -j 8
+export OpenCASCADE_DIR="$PWD/.occt/prefix/lib/cmake/opencascade"
+export OCCT_INCLUDE_DIR="$PWD/.occt/prefix/include/opencascade"
 ```
-
-`OCCT_SRC_DIR` overrides that location. OCCT is not a git submodule: Cargo fetches a
-git dependency's submodules unconditionally, so a submodule would make every consumer
-of `ferrocad_occt_cxx` clone the upstream kernel even when it links a prebuilt one.
-Every `cargo build` (with or without `builtin`) therefore clones a few megabytes.
-
-Downstream crates opt in the same way: enable the `builtin` feature on
-`ferrocad_occt_cxx`.
 
 NOTE: If you installed `OCCT` manually you may need specify the path to it via the `DEP_OCCT_ROOT` environment variable. The specified root directory usually contains `include` and `lib` directories.
 
