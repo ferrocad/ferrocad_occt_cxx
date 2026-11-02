@@ -163,11 +163,47 @@ docker run --rm -v "$PWD":/work -w /work \
   cargo check -p ferrocad_occt_cxx --target wasm32-unknown-unknown
 ```
 
-The tarball is headless and omits IGES, STL, BRepFeat and OCAF. Unused bindings
-are dropped by `--gc-sections`, so a normal geometry path links (the
+The tarball is headless: no visualization, OCAF, IGES or STL toolkits. Unused
+bindings are dropped by `--gc-sections`, so a normal geometry path links (the
 `ferrocad_occt_wasm` smoke crate builds a box, fillets an edge and tessellates it,
-and returns 40 triangles when run under Node/WASI); calling those specific
-bindings fails at link time.
+and returns 40 triangles when run under Node/WASI); calling a binding whose
+toolkit is absent fails at link time.
+
+#### TKFeat for the wasm kernel
+
+The tarball also prunes **`TKFeat`** (`BRepFeat`, `LocOpe`) — cadrum's API never
+needs it, but `GeometryBackend::split_shape` does, and any consumer that coerces
+the backend to `Arc<dyn GeometryBackend>` (which `ferrocad_part::register` does)
+keeps the whole vtable, so the symbols become reachable even when nothing calls
+`split_shape`. Building OCCT again is unnecessary: the toolkit is 35 translation
+units and compiles against the kernel's own headers.
+
+The recipe (the wasi-sdk flags are the ones the kernel was built with, in
+particular the legacy wasm-EH encoding):
+
+```sh
+# once: the toolkit's sources only
+git clone --depth 1 --branch V8_0_1 --filter=blob:none --sparse \
+  https://github.com/Open-Cascade-SAS/OCCT.git target/occt-src
+git -C target/occt-src sparse-checkout set src/ModelingAlgorithms/TKFeat
+
+# then, inside ghcr.io/lzpel/cross-wasm32-unknown-unknown, with the kernel's
+# include/ and lib/ mounted as $OUT:
+for f in "$SRC"/src/ModelingAlgorithms/TKFeat/{BRepFeat,LocOpe}/*.cxx; do
+  clang++ --target=wasm32-wasip1 --sysroot="$SYSROOT" \
+    -fwasm-exceptions -fexceptions -mllvm -wasm-use-legacy-eh=true \
+    -D_WASI_EMULATED_PROCESS_CLOCKS -D_WASI_EMULATED_SIGNAL \
+    -D_WASI_EMULATED_MMAN -D_WASI_EMULATED_GETPID \
+    -D_USE_MATH_DEFINES -DFEATURE_COLOR -std=c++17 -O2 \
+    -I "$OUT/include/opencascade" -I "$SRC/src/ModelingAlgorithms/TKFeat" \
+    -c "$f" -o "obj/$(basename "$f" .cxx).o"
+done
+ar rcs "$OUT/lib/libTKFeat.a" obj/*.o
+```
+
+FerroCAD's `crates/ferrocad_web/run.sh` does this automatically into
+`.occt-wasm/<kernel>/lib/libTKFeat.a`. The build script links `-lTKFeat` when that
+file exists and warns when it does not.
 
 ## Code Formatting
 

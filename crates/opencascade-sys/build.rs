@@ -38,11 +38,10 @@ const OCCT_LIBS: &[&str] = &[
     "TKXCAF",
 ];
 
-/// The OCCT toolkits present in the prebuilt wasm kernel (cadrum's
-/// `occt-8_0_1_rev3-wasm32_unknown_unknown`). It is headless: no visualization,
-/// OCAF, IGES, STL or BRepFeat toolkits, so it is a subset of `OCCT_LIBS`.
-/// `cargo check` compiles against the full header set; a final link only resolves
-/// what these archives provide.
+/// The OCCT toolkits linked into the prebuilt wasm kernel: cadrum's
+/// `occt-8_0_1_rev3-wasm32_unknown_unknown`, plus the `TKFeat` archive FerroCAD
+/// builds itself (see `crates/ferrocad_web/README.md`). The kernel is headless: no
+/// visualization, OCAF, IGES or STL toolkits.
 const OCCT_WASM_LIBS: &[&str] = &[
     "TKernel",
     "TKMath",
@@ -62,11 +61,10 @@ const OCCT_WASM_LIBS: &[&str] = &[
     "TKDECascade",
     "TKOffset",
     "TKFillet",
+    "TKFeat",
     "TKDESTEP",
 ];
 
-/// Whether the detected OCCT `major`.`minor` is inside the supported range:
-/// `OCCT_VERSION.0` from `OCCT_VERSION.1` upwards, or any `OCCT_MAX_MAJOR` release.
 /// The versioned ELF name of `lib` in `dir`, e.g. `libTKernel.so.8.0`.
 ///
 /// `None` when the prefix has no such file (Windows import libraries, macOS
@@ -92,6 +90,8 @@ fn versioned_soname(dir: &std::path::Path, lib: &str) -> Option<String> {
     best.map(|(_, name)| name)
 }
 
+/// Whether the detected OCCT `major`.`minor` is inside the supported range:
+/// `OCCT_VERSION.0` from `OCCT_VERSION.1` upwards, or any `OCCT_MAX_MAJOR` release.
 fn is_supported_occt_version(major: u8, minor: u8) -> bool {
     // 7.8 and later 7.x releases.
     if major == OCCT_VERSION.0 {
@@ -125,7 +125,25 @@ fn main() {
         // Prebuilt wasm kernel: static archives, plus the libc++/EH runtime the
         // tarball ships for its wasi-sdk build. `libc++.a` is linked by
         // `link-cplusplus` as `-lc++` through the search path above.
+        //
+        // `TKFeat` is the exception: cadrum's tarball prunes BRepFeat/LocOpe
+        // (their own API never needs them), so the archive has to be built into
+        // the kernel first. It is only 35 translation units and they compile
+        // against the kernel's own headers with its wasi-sdk, so no OCCT rebuild
+        // is involved (see the README). Without it, `split_shape` — reachable
+        // from the `GeometryBackend` vtable — does not link.
+        let tkfeat = occt_config.library_dir.join("libTKFeat.a").is_file();
+        if !tkfeat {
+            println!(
+                "cargo:warning=the wasm kernel has no libTKFeat.a, so BRepFeat (and \
+                 `GeometryBackend::split_shape`) will not link. Build it into the kernel (README: \
+                 \"TKFeat for the wasm kernel\") or keep `ferrocad_part` off the wasm target."
+            );
+        }
         for lib in OCCT_WASM_LIBS {
+            if !tkfeat && *lib == "TKFeat" {
+                continue;
+            }
             println!("cargo:rustc-link-lib=static={lib}");
         }
         for lib in wasm_runtime_libs(&occt_config.library_dir) {
