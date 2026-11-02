@@ -2,10 +2,10 @@
 
 > **Fork.** This is FerroCAD's fork of
 > [`bschwind/opencascade-rs`](https://github.com/bschwind/opencascade-rs).
-> It keeps `crates/opencascade-sys` (package `ferrocad_occt_cxx`, library
-> `opencascade_sys` — the crate FerroCAD builds) and the WASM model boundary
-> (`crates/model-api` + `crates/wasm-example`). Upstream's high-level API, viewer,
-> KiCad parser and demo models are removed; see "Fork status".
+> It keeps only `crates/opencascade-sys` (package `ferrocad_occt_cxx`, library
+> `opencascade_sys` — the crate FerroCAD builds). Upstream's high-level API,
+> viewer, KiCad parser, demo models and the WIT `model-api` experiment are
+> removed; see "Fork status".
 
 Rust bindings to [OpenCascade](https://dev.opencascade.org). The code is currently a major work in progress.
 
@@ -14,15 +14,17 @@ I currently work a full-time job and work on this in my spare time, so please ad
 ## Fork status
 
 - **Base:** upstream `v0.3` (`32758df`), with the OCCT 8 compatibility work.
-- **Keeps:**
-  - `crates/opencascade-sys` (package `ferrocad_occt_cxx`, library
-    `opencascade_sys`) — the only crate FerroCAD builds.
-  - `crates/model-api` (the WIT contract) and `crates/wasm-example` (a model
-    compiled to `wasm32-unknown-unknown`) — the WASM path.
+- **Keeps:** `crates/opencascade-sys` (package `ferrocad_occt_cxx`, library
+  `opencascade_sys`) — the only crate FerroCAD builds. It is deliberately
+  **generic OCCT bindings**: no FerroCAD or `Part` semantics live here, those are
+  in FerroCAD's `ferrocad_occt` crate.
 - **Removed:** upstream's high-level `opencascade` API, the `viewer` demo, the
-  KiCad parser and the example models. FerroCAD does not use them, and the WASM
-  path is the model/WIT boundary rather than the demo host. They remain in the
-  git history if they are ever needed again.
+  KiCad parser and the example models. FerroCAD does not use them. They remain in
+  the git history if they are ever needed again.
+- **Removed:** the WIT `model-api` boundary and its `wasm-example` model. It was
+  upstream's wasm contract experiment and nothing here used it; the wasm path that
+  matters is the kernel itself (see "The kernel itself in wasm"), which FerroCAD
+  exercises through `ferrocad_occt_wasm` and `ferrocad_web`.
 - **Removed:** `crates/occt-sys`, its OCCT git submodule and the `builtin`
   feature. The bindings link a kernel that already exists — an install prefix or
   the prebuilt wasm kernel — and never fetch or compile OCCT's source. Cargo
@@ -123,34 +125,28 @@ NOTE: If you installed `OCCT` manually you may need specify the path to it via t
 
 ## Run Examples
 
-* `cargo run --release --example bottle`
-
-The program will output `bottle.stl` in the current working directory.
-
-### Lower Level
-
 There are low level examples which are more or less directly calling OpenCascade functions, such as the classic OpenCascade [bottle](./crates/opencascade-sys/examples/bottle.rs) example, or a [simpler](./crates/opencascade-sys/examples/simple.rs) one.
 
-## WASM models
-
-The WASM path is the model/WIT boundary, not a bundled viewer:
-
-- [`crates/model-api`](./crates/model-api) defines the WIT contract and the
-  `Model` trait, so a model can be compiled to `wasm32-unknown-unknown`.
-- [`crates/wasm-example`](./crates/wasm-example) is such a model.
-
 ```sh
-cargo build -p wasm-example --release --target wasm32-unknown-unknown
+cargo run -p ferrocad_occt_cxx --example bottle
 ```
 
-A host supplies the OCCT-backed imports and runs the module. This fork does not
-ship one (upstream's `viewer` was removed); FerroCAD or any other app can be that
-host by implementing the WIT interface.
+The build script only *records* the kernel it found; the examples (and the
+integration tests) need it on the loader path, or they fail with
+`libTKMath.so.8.0: cannot open shared object file`:
 
-### The kernel itself in wasm
+```sh
+LD_LIBRARY_PATH=$PREFIX/lib cargo test -p ferrocad_occt_cxx
+```
 
-The bindings can also target `wasm32-unknown-unknown` against a prebuilt OCCT. Set
-`OCCT_WASM_ROOT` to the extracted
+## WASM
+
+The bindings compile for `wasm32-unknown-unknown` against a prebuilt OCCT kernel.
+There is no in-tree wasm host or example: FerroCAD's `crates/ferrocad_occt_wasm`
+is the link/run smoke test (a box, a filleted edge, 40 triangles under Node/WASI)
+and `crates/ferrocad_web` is a browser host.
+
+Set `OCCT_WASM_ROOT` to the extracted
 [`occt-8_0_1_rev3-wasm32_unknown_unknown`](https://github.com/lzpel/cadrum/releases/download/occt-8_0_1_rev3/occt-8_0_1_rev3-wasm32_unknown_unknown.tar.gz)
 tarball and build inside
 `ghcr.io/lzpel/cross-wasm32-unknown-unknown`, which carries the wasi-sdk toolchain
@@ -169,7 +165,7 @@ bindings are dropped by `--gc-sections`, so a normal geometry path links (the
 and returns 40 triangles when run under Node/WASI); calling a binding whose
 toolkit is absent fails at link time.
 
-#### TKFeat for the wasm kernel
+### TKFeat for the wasm kernel
 
 The tarball also prunes **`TKFeat`** (`BRepFeat`, `LocOpe`) — cadrum's API never
 needs it, but `GeometryBackend::split_shape` does, and any consumer that coerces
