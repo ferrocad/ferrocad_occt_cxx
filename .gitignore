@@ -3,3 +3,6 @@
 
 /.occt/
 /.occt-wasm/
+
+# OCCT checkout for the opt-in `builtin` feature (see README)
+/crates/occt-sys/OCCT/

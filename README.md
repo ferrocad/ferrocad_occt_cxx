@@ -74,8 +74,8 @@ There are other benefits:
 
 ## Building
 
-* The `OCCT` codebase is included as a git submodule. Clone the repo with the `--recursive` flag, or use `git submodule update --init` to fetch the submodule.
-* `cargo build --release`
+* `cargo build --release`. No submodule to initialise: the default build links an
+  installed OCCT, and only `builtin` needs the kernel's source (see below).
 
 ### Using a pre-installed OpenCASCADE (the default)
 
@@ -97,11 +97,18 @@ This is the fast path, it is what FerroCAD uses, and it keeps OCCT a shared libr
 ### Building OCCT from source (`builtin`)
 
 If no OCCT is installed, enable the vendored build. It compiles the whole kernel from
-the `occt-sys` submodule — minutes to build, and statically linked:
+an OCCT checkout — minutes to build, and statically linked.
 
 ```sh
+git clone --depth 1 --branch V8_0_1 https://github.com/Open-Cascade-SAS/OCCT.git \
+    crates/occt-sys/OCCT
 cargo build --features builtin
 ```
+
+`OCCT_SRC_DIR` overrides that location. OCCT is not a git submodule: Cargo fetches a
+git dependency's submodules unconditionally, so a submodule would make every consumer
+of `ferrocad_occt_cxx` clone the upstream kernel even when it links a prebuilt one.
+Every `cargo build` (with or without `builtin`) therefore clones a few megabytes.
 
 Downstream crates opt in the same way: enable the `builtin` feature on
 `ferrocad_occt_cxx`.

@@ -16,9 +16,26 @@ pub fn occt_path() -> PathBuf {
     Path::new(&var("OUT_DIR").expect("missing OUT_DIR")).join("../../../../OCCT")
 }
 
-/// Build the OCCT library.
+/// Build the OCCT library (the `builtin` feature).
+///
+/// The source tree is `OCCT_SRC_DIR` if set, else `crates/occt-sys/OCCT`. It is
+/// not a git submodule (Cargo would fetch it for every consumer, including those
+/// that link a prebuilt kernel), so it must be checked out on demand; the
+/// assertion below says how when it is missing.
 pub fn build_occt() {
-    cmake::Config::new(Path::new(env!("OCCT_SRC_DIR")))
+    let src = Path::new(env!("OCCT_SRC_DIR"));
+    assert!(
+        src.join("CMakeLists.txt").exists(),
+        "the `builtin` feature builds OCCT from source, but there is no OCCT checkout at {}.\n\
+         Fetch one and point OCCT_SRC_DIR at it:\n\n  \
+         git clone --depth 1 --branch V8_0_1 https://github.com/Open-Cascade-SAS/OCCT.git {}\n\n  \
+         OCCT_SRC_DIR={} cargo build --features builtin\n\n\
+         Without `builtin`, the build links the OCCT that CMake finds (see the README).",
+        src.display(),
+        src.display(),
+        src.display(),
+    );
+    cmake::Config::new(src)
         .define("BUILD_PATCH", Path::new(env!("OCCT_PATCH_DIR")))
         .define("BUILD_LIBRARY_TYPE", "Static")
         .define("BUILD_MODULE_ApplicationFramework", "FALSE")
