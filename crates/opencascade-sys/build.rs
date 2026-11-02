@@ -67,6 +67,31 @@ const OCCT_WASM_LIBS: &[&str] = &[
 
 /// Whether the detected OCCT `major`.`minor` is inside the supported range:
 /// `OCCT_VERSION.0` from `OCCT_VERSION.1` upwards, or any `OCCT_MAX_MAJOR` release.
+/// The versioned ELF name of `lib` in `dir`, e.g. `libTKernel.so.8.0`.
+///
+/// `None` when the prefix has no such file (Windows import libraries, macOS
+/// dylibs), where the plain `-l` name is used instead.
+fn versioned_soname(dir: &std::path::Path, lib: &str) -> Option<String> {
+    let prefix = format!("lib{lib}.so.");
+    let mut best: Option<(usize, String)> = None;
+    for entry in std::fs::read_dir(dir).ok()?.flatten() {
+        let name = entry.file_name().to_string_lossy().into_owned();
+        let Some(version) = name.strip_prefix(&prefix) else {
+            continue;
+        };
+        if version.is_empty() || !version.split('.').all(|part| part.parse::<u32>().is_ok()) {
+            continue;
+        }
+        // `libTKernel.so.8.0` and `libTKernel.so.8.0.1` are the same library; the
+        // shorter name is the one the SONAME spells, and both point at it.
+        let depth = version.matches('.').count();
+        if best.as_ref().map_or(true, |(best_depth, _)| depth < *best_depth) {
+            best = Some((depth, name));
+        }
+    }
+    best.map(|(_, name)| name)
+}
+
 fn is_supported_occt_version(major: u8, minor: u8) -> bool {
     // 7.8 and later 7.x releases.
     if major == OCCT_VERSION.0 {
@@ -109,7 +134,15 @@ fn main() {
     } else {
         let lib_type = if occt_config.is_dynamic { "dylib" } else { "static" };
         for lib in OCCT_LIBS {
-            println!("cargo:rustc-link-lib={lib_type}={lib}");
+            // Name the versioned file when the prefix has one: `-l:libTKernel.so.8.0`
+            // matches exactly one file, so an OCCT in an *earlier* `-L` directory
+            // (a distro's `libocct-*-dev`, whose files are `libTKernel.so` and
+            // `libTKernel.so.7.9`) can no longer shadow the prefix we probed. The
+            // linker still records the library's own SONAME.
+            match (occt_config.is_dynamic, versioned_soname(&occt_config.library_dir, lib)) {
+                (true, Some(file)) => println!("cargo:rustc-link-lib=dylib:+verbatim={file}"),
+                _ => println!("cargo:rustc-link-lib={lib_type}={lib}"),
+            }
         }
     }
 
